@@ -1,0 +1,35 @@
+{
+  "name": "nuclear-power-simulator-2017",
+  "version": "1.0.0",
+  "description": "Plan, build, and manage nuclear power plants to become the greenest country on the planet",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "concurrently \"node ./src/index.js\" \"gulp\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelgira23/nuclear-power-simulator-2017.git"
+  },
+  "keywords": [
+    "nuclear",
+    "power",
+    "simulator"
+  ],
+  "author": "Michael Gira",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/michaelgira23/nuclear-power-simulator-2017/issues"
+  },
+  "homepage": "https://github.com/michaelgira23/nuclear-power-simulator-2017#readme",
+  "dependencies": {
+    "ejs": "^2.5.6",
+    "express": "^4.15.2",
+    "gulp-sass": "^3.1.0",
+    "paper": "^0.11.3"
+  },
+  "devDependencies": {
+    "concurrently": "^3.4.0",
+    "gulp": "^3.9.1"
+  }
+}

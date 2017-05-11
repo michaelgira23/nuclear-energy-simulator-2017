@@ -1,7 +1,4 @@
 /node_modules
 
-/src/public/css/*
-
-/src/public/js/*
-!/src/public/js/app.js
-!/src/public/js/app-paper.js
+/src/public/css
+/src/public/js

@@ -14,8 +14,14 @@ tsPipeline.registerBuildGulpTasks(
 	}
 );
 
+// Move all images from assets into the public folder
+gulp.task('assets:images', () => {
+	gulp.src(['./src/assets/**/*.png'])
+		.pipe(gulp.dest('./src/public/images'));
+});
+
 // Move all JS assets from node_modules into the JS folder
-gulp.task('assets', () => {
+gulp.task('assets:js', () => {
 	gulp.src(['./node_modules/paper/dist/paper-full.js'])
 		.pipe(gulp.dest('./src/public/js'));
 });
@@ -37,4 +43,5 @@ gulp.task('ts', ['tsPipeline:build:dev']);
 gulp.task('ts:prod', ['tsPipeline:build:release']);
 gulp.task('ts:watch', ['tsPipeline:watch']);
 
+gulp.task('assets', ['assets:images', 'assets:js']);
 gulp.task('default', ['assets', 'sass', 'sass:watch', 'ts:watch']);

@@ -1,12 +1,13 @@
+import * as interact from 'interactjs';
 import { Reactor, reactorSpecs } from './reactor';
 import { numberWithCommas } from './utils';
 
 declare const $: any;
-declare const interact: any;
 
 export class Game {
 
 	$game: any;
+	$view: any;
 	reactorsInteractable: any;
 
 	name: { first: string, last: string };
@@ -74,6 +75,7 @@ export class Game {
 		// Game initialization
 
 		this.$game = $(query);
+		this.$view = this.$game.find('.game-view');
 		this.name = {
 			first: firstName,
 			last: lastName
@@ -95,7 +97,7 @@ export class Game {
 		for (const size of Object.keys(reactorSpecs)) {
 			const reactor = reactorSpecs[size];
 			$buy.append(`
-				<div class="buy-reactor">
+				<div class="buy-reactor" data-size="${size}">
 					<h5 class="reactor-name">${size[0].toUpperCase() + size.substr(1)} Reactor</h5>
 					<img class="reactor-image" src="images/reactors/${size}/${size}.png">
 					<p>Cost <strong>$${numberWithCommas(reactor.cost)}</strong></p>
@@ -117,10 +119,16 @@ export class Game {
 			})
 			.on('dragstart', event => {
 				event.target.classList.add('dragging');
+				event.target.setAttribute('data-x', 0);
+				event.target.setAttribute('data-y', 0);
+				// Get starting dimensions so we know how to compensate when placing reactors
+				const dimensions = event.target.getBoundingClientRect();
+				event.target.setAttribute('data-mouse-offset-x', dimensions.left - event.clientX);
+				event.target.setAttribute('data-mouse-offset-y', dimensions.top - event.clientY);
 			})
 			.on('dragmove', event => {
-				let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
-				let y = (parseFloat(event.target.getAttribute('data-y')) || 0);
+				let x = parseFloat(event.target.getAttribute('data-x'));
+				let y = parseFloat(event.target.getAttribute('data-y'));
 
 				x += event.dx;
 				y += event.dy;
@@ -131,6 +139,12 @@ export class Game {
 				event.target.setAttribute('data-y', y);
 			})
 			.on('dragend', event => {
+				const dimensions = event.target.getBoundingClientRect();
+				const x = event.clientX + Number(event.target.getAttribute('data-mouse-offset-x')) + (dimensions.width / 2);
+				const y = event.clientY + Number(event.target.getAttribute('data-mouse-offset-y')) + (dimensions.height / 2);
+
+				this.reactors.push(new Reactor(this, event.target.getAttribute('data-size'), x, y));
+				event.target.style.transform = 'none';
 				event.target.classList.remove('dragging');
 			});
 	}

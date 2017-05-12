@@ -22,7 +22,7 @@ html, body {
 
 		.game-buy {
 			height: 100%;
-			width: 32rem;
+			width: 35rem;
 
 			padding: $padding;
 
@@ -81,10 +81,13 @@ html, body {
 
 			background: #3777dd;
 
-
 			.background {
-				max-width: 50%;
+				max-width: 80%;
 				max-height: 100%;
+			}
+
+			.game-reactor {
+				position: absolute;
 			}
 		}
 	}

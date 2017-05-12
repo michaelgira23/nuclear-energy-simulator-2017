@@ -1,7 +1,3 @@
 import { Game } from './game';
 
-declare const paper: any;
-
-console.log('HI');
-
-const game = new Game('Michael', 'Gira');
+const game = new Game('#game', 'Michael', 'Gira');

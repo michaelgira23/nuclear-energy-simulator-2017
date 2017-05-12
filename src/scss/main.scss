@@ -1,12 +1,16 @@
 $padding: 0.5rem;
 
+html, body {
+	height: 100%;
+}
+
 button {
 	cursor: pointer;
 }
 
 #game {
 	width: 100%;
-	height: 100vh;
+	height: 100%;
 
 	display: flex;
 	flex-direction: column;
@@ -26,6 +30,7 @@ button {
 
 		.game-buy {
 			height: 100%;
+			width: 15rem;
 
 			position: absolute;
 			top: 0;
@@ -34,7 +39,32 @@ button {
 
 			padding: $padding;
 
-			background: #f7f7f7
+			overflow: auto;
+
+			background: #f7f7f7;
+
+			.buy-reactors {
+				.buy-reactor {
+					margin-bottom: $padding;
+					padding: $padding;
+
+					background: darken(#f7f7f7, 10%);
+					border: 1px solid rgba(#292b2c, 0.5);
+
+					p {
+						margin: 0;
+					}
+
+					.reactor-name {
+						text-align: center;
+					}
+
+					.reactor-image {
+						display: block;
+						margin: 0 auto;
+					}
+				}
+			}
 		}
 
 		.background {

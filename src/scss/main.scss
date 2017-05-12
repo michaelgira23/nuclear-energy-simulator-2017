@@ -36,6 +36,7 @@ html, body {
 					margin-bottom: $padding / 2;
 					padding: $padding;
 
+					position: relative;
 					display: inline-block;
 
 					background: darken(#f7f7f7, 10%);
@@ -46,9 +47,25 @@ html, body {
 					&.dragging {
 						background: none;
 						border: none;
+						z-index: 100;
 
 						*:not(.reactor-image) {
 							opacity: 0;
+						}
+					}
+
+					&.disabled {
+						cursor: not-allowed;
+						color: mix(#292b2c, rgba(#292b2c, 0.5));
+
+						&:before {
+							content: ' ';
+							position: absolute;
+							top: 0;
+							right: 0;
+							bottom: 0;
+							left: 0;
+							background: rgba(#292b2c, 0.5);
 						}
 					}
 

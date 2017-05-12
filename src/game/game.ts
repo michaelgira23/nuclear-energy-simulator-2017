@@ -27,16 +27,17 @@ export class Game {
 	get money() {
 		return this._money;
 	}
-	set money(value) {
+	set money(value: number) {
 		this._money = value;
 		this.$game.find('.status-money span').text(numberWithCommas(value));
+		this.disableReactors(value);
 	}
 
 	// How much money gained every interval
 	get moneyGained() {
 		return this._moneyGained;
 	}
-	set moneyGained(value) {
+	set moneyGained(value: number) {
 		this._moneyGained = value;
 		// Whether or not to add `+` or `-` symbol
 		let sign = '';
@@ -55,7 +56,7 @@ export class Game {
 	get pollution() {
 		return this._pollution;
 	}
-	set pollution(value) {
+	set pollution(value: number) {
 		this._pollution = value;
 	}
 
@@ -63,12 +64,16 @@ export class Game {
 	get time() {
 		return this._time;
 	}
-	set time(value) {
+	set time(value: number) {
 		this._time = value;
 		const seconds = value % 60;
 		const minutes = Math.floor(value / 60);
 		this.$game.find('.status-time span').text(`${minutes}:${seconds < 9 ? '0' + seconds : seconds}`);
 	}
+
+	/**
+	 * Constructor
+	 */
 
 	constructor(query: string, firstName: string, lastName: string) {
 
@@ -81,8 +86,8 @@ export class Game {
 			last: lastName
 		};
 
-		this.money = 400;
-		this.moneyGained = 100;
+		this.money = 17000;
+		this.moneyGained = 1000;
 		this.pollution = 0.8
 
 		this.time = 0;
@@ -97,7 +102,7 @@ export class Game {
 		for (const size of Object.keys(reactorSpecs)) {
 			const reactor = reactorSpecs[size];
 			$buy.append(`
-				<div class="buy-reactor" data-size="${size}">
+				<div class="buy-reactor disabled" data-size="${size}" data-cost="${reactor.cost}">
 					<h5 class="reactor-name">${size[0].toUpperCase() + size.substr(1)} Reactor</h5>
 					<img class="reactor-image" src="images/reactors/${size}/${size}.png">
 					<p>Cost <strong>$${numberWithCommas(reactor.cost)}</strong></p>
@@ -107,7 +112,7 @@ export class Game {
 		}
 
 		// Make reactors in shop draggable
-		this.reactorsInteractable = interact('.buy-reactor')
+		this.reactorsInteractable = interact('.buy-reactor:not(.disabled)')
 			.draggable({
 				snap: {
 					targets: [
@@ -143,9 +148,30 @@ export class Game {
 				const x = event.clientX + Number(event.target.getAttribute('data-mouse-offset-x')) + (dimensions.width / 2);
 				const y = event.clientY + Number(event.target.getAttribute('data-mouse-offset-y')) + (dimensions.height / 2);
 
-				this.reactors.push(new Reactor(this, event.target.getAttribute('data-size'), x, y));
+				// Only add if player has enough money
+				const reactorSize = event.target.getAttribute('data-size');
+				const reactorCost = reactorSpecs[reactorSize].cost;
+				if (this.money >= reactorCost) {
+					this.money -= reactorCost;
+					this.reactors.push(new Reactor(this, reactorSize, x, y));
+				}
 				event.target.style.transform = 'none';
 				event.target.classList.remove('dragging');
+			});
+	}
+
+	/**
+	 * Disable nuclear reactors that player can't afford
+	 */
+
+	disableReactors(value: number) {
+		this.$game.find('.buy-reactor')
+			.each(function() {
+				if (value >= parseFloat($(this).attr('data-cost'))) {
+					$(this).removeClass('disabled');
+				} else {
+					$(this).addClass('disabled');
+				}
 			});
 	}
 }

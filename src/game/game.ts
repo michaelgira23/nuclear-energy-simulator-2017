@@ -1,4 +1,4 @@
-import { Reactor } from './reactor';
+import { Reactor, reactorSpecs } from './reactor';
 
 declare const $: any;
 

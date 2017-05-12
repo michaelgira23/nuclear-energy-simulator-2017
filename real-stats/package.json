@@ -1,0 +1,23 @@
+{
+  "name": "real-stats",
+  "version": "1.0.0",
+  "description": "Scrap the web to get real statistics for nuclear power plants",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "you",
+    "think",
+    "this",
+    "is",
+    "a",
+    "joke?"
+  ],
+  "author": "Michael Gira",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "request": "^2.81.0"
+  }
+}

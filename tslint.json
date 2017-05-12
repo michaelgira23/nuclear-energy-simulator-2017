@@ -17,6 +17,10 @@
 			true,
 			"tabs"
 		],
+		"interface-name": [
+			true,
+			"never-prefix"
+		],
 		"label-position": true,
 		"label-undefined": true,
 		"max-line-length": [

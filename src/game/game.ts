@@ -2,10 +2,12 @@ import { Reactor, reactorSpecs } from './reactor';
 import { numberWithCommas } from './utils';
 
 declare const $: any;
+declare const interact: any;
 
 export class Game {
 
 	$game: any;
+	reactorsInteractable: any;
 
 	name: { first: string, last: string };
 	reactors: Reactor[] = [];
@@ -101,5 +103,35 @@ export class Game {
 				</div>
 			`);
 		}
+
+		// Make reactors in shop draggable
+		this.reactorsInteractable = interact('.buy-reactor')
+			.draggable({
+				snap: {
+					targets: [
+						interact.createSnapGrid({ x: 30, y: 30 })
+					],
+					range: Infinity,
+					relativePoints: [{ x: 0, y: 0 }]
+				}
+			})
+			.on('dragstart', event => {
+				event.target.classList.add('dragging');
+			})
+			.on('dragmove', event => {
+				let x = (parseFloat(event.target.getAttribute('data-x')) || 0);
+				let y = (parseFloat(event.target.getAttribute('data-y')) || 0);
+
+				x += event.dx;
+				y += event.dy;
+
+				event.target.style.transform = `translate(${x}px, ${y}px)`;
+
+				event.target.setAttribute('data-x', x);
+				event.target.setAttribute('data-y', y);
+			})
+			.on('dragend', event => {
+				event.target.classList.remove('dragging');
+			});
 	}
 }

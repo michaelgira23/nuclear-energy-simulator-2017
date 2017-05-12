@@ -1,4 +1,5 @@
 import { Reactor, reactorSpecs } from './reactor';
+import { numberWithCommas } from './utils';
 
 declare const $: any;
 
@@ -25,7 +26,7 @@ export class Game {
 	}
 	set money(value) {
 		this._money = value;
-		this.$game.find('.status-money span').text(value);
+		this.$game.find('.status-money span').text(numberWithCommas(value));
 	}
 
 	// How much money gained every interval
@@ -44,7 +45,7 @@ export class Game {
 				sign = '-';
 				break;
 		}
-		this.$game.find('.status-moneygained span').text(`${sign}$${value}`);
+		this.$game.find('.status-moneygained span').text(`${sign}$${numberWithCommas(value)}`);
 	}
 
 	// Percentage between 0 and 1 (inclusive) how much pollution there is
@@ -95,7 +96,7 @@ export class Game {
 				<div class="buy-reactor">
 					<h5 class="reactor-name">${size[0].toUpperCase() + size.substr(1)} Reactor</h5>
 					<img class="reactor-image" src="images/reactors/${size}/${size}.png">
-					<p>Cost <strong>${reactor.cost}</strong></p>
+					<p>Cost <strong>$${numberWithCommas(reactor.cost)}</strong></p>
 					<p>Generates <strong>${reactor.mw} MW</strong></p>
 				</div>
 			`);

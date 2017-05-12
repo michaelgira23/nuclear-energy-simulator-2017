@@ -71,6 +71,17 @@
 		"semicolon": [
 			"always"
 		],
+		"trailing-comma": [
+			true,
+			{
+				"multiline": {
+					"objects": "never",
+					"arrays": "never",
+					"functions": "never",
+					"typeLiterals": "ignore"
+				}
+			}
+		],
 		"triple-equals": [
 			true,
 			"allow-null-check"

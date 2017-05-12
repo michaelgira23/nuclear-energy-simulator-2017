@@ -4,4 +4,4 @@ declare const paper: any;
 
 console.log('HI');
 
-const game = new Game();
+const game = new Game('Michael', 'Gira');

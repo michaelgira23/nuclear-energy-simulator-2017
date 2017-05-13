@@ -1,14 +1,17 @@
 import uuid from 'uuid/v4';
+import { ReactorModal } from './reactor-modal';
+import { capitalize } from './utils';
 
 declare const $: any;
 
 export class Reactor {
 
 	id: string;
-	specs: ReactorSpec;
 	$elem: any;
+	specs: ReactorSpec;
+	modal: ReactorModal;
 
-	constructor(private game, public size: string, public x: number, public y: number) {
+	constructor(public game, public size: string, public x: number, public y: number) {
 
 		// Generate a Universally Unique Identifier
 		this.id = uuid();
@@ -21,17 +24,42 @@ export class Reactor {
 		}
 
 		this.game.$view.append(`
-			<div id="${this.id}" class="game-reactor">
+			<div id="${this.id}" class="reactor">
 				<img src="images/reactors/${size}/${size}.png">
 			</div>
 		`);
 
-		this.$elem = $(`.game-reactor#${this.id}`);
+		this.$elem = $(`.reactor#${this.id}`);
 
 		this.$elem.css({
 			left: x - 50,
 			top: y - 55
 		});
+
+		this.$elem.click(event => {
+			console.log(event);
+			const dimensions = event.target.getBoundingClientRect();
+			// Toggle modal
+			if (this.modal && !this.modal.closed) {
+				this.closeDetails();
+			} else {
+				this.openDetails(dimensions.right, dimensions.top);
+			}
+		});
+	}
+
+	openDetails(x: number, y: number) {
+		if (this.modal && !this.modal.closed) {
+			return;
+		}
+		this.modal = new ReactorModal(this, x, y);
+	}
+
+	closeDetails() {
+		if (this.modal) {
+			this.modal.close();
+		}
+		this.modal = null;
 	}
 }
 

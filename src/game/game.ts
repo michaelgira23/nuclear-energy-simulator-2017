@@ -1,6 +1,6 @@
 import * as interact from 'interactjs';
 import { Reactor, reactorSpecs } from './reactor';
-import { numberWithCommas } from './utils';
+import { capitalize, numberWithCommas } from './utils';
 
 declare const $: any;
 
@@ -86,8 +86,8 @@ export class Game {
 			last: lastName
 		};
 
-		this.money = 17000;
-		this.moneyGained = 1000;
+		this.money = 200000;
+		this.moneyGained = 10000;
 		this.pollution = 0.8
 
 		this.time = 0;
@@ -103,7 +103,7 @@ export class Game {
 			const reactor = reactorSpecs[size];
 			$buy.append(`
 				<div class="buy-reactor disabled" data-size="${size}" data-cost="${reactor.cost}">
-					<h5 class="reactor-name">${size[0].toUpperCase() + size.substr(1)} Reactor</h5>
+					<h5 class="reactor-name">${capitalize(size)} Reactor</h5>
 					<img class="reactor-image" src="images/reactors/${size}/${size}.png">
 					<p>Cost <strong>$${numberWithCommas(reactor.cost)}</strong></p>
 					<p>Generates <strong>${reactor.mw} MW</strong></p>
@@ -153,11 +153,19 @@ export class Game {
 				const reactorCost = reactorSpecs[reactorSize].cost;
 				if (this.money >= reactorCost) {
 					this.money -= reactorCost;
-					this.reactors.push(new Reactor(this, reactorSize, x, y));
+					this.addReactor(reactorSize, x, y);
 				}
 				event.target.style.transform = 'none';
 				event.target.classList.remove('dragging');
 			});
+	}
+
+	/**
+	 * Adds a reactor onto the game
+	 */
+
+	addReactor(size: string, x: number, y: number) {
+		this.reactors.push(new Reactor(this, size, x, y));
 	}
 
 	/**

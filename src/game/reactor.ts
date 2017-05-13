@@ -1,5 +1,5 @@
 import uuid from 'uuid/v4';
-import { ReactorModal } from './reactor-modal';
+import { ReactorDetails } from './reactor-details';
 import { capitalize } from './utils';
 
 declare const $: any;
@@ -9,7 +9,7 @@ export class Reactor {
 	id: string;
 	$elem: any;
 	specs: ReactorSpec;
-	modal: ReactorModal;
+	detailsPopup: ReactorDetails;
 
 	constructor(public game, public size: string, public x: number, public y: number) {
 
@@ -36,29 +36,7 @@ export class Reactor {
 			top: y - 55
 		});
 
-		this.$elem.click(event => {
-			const dimensions = event.target.getBoundingClientRect();
-			// Toggle modal
-			if (this.modal && !this.modal.closed) {
-				this.closeDetails();
-			} else {
-				this.openDetails(dimensions.right, dimensions.top);
-			}
-		});
-	}
-
-	openDetails(x: number, y: number) {
-		if (this.modal && !this.modal.closed) {
-			return;
-		}
-		this.modal = new ReactorModal(this, x, y);
-	}
-
-	closeDetails() {
-		if (this.modal) {
-			this.modal.close();
-		}
-		this.modal = null;
+		this.detailsPopup = new ReactorDetails(this);
 	}
 }
 

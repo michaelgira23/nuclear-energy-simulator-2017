@@ -151,6 +151,14 @@ export class Game {
 				event.target.style.transform = 'none';
 				event.target.classList.remove('dragging');
 			});
+
+		// Dismiss any popovers if player clicks outside them
+		// this.$view.click(event => {
+		// 	const target = $(event.target);
+		// 	if (!target.hasClass('popover') && !target.hasClass('.reactor') && target.parents('.popover.show').length === 0) {
+		// 		$('.reactor').popover('hide');
+		// 	}
+		// });
 	}
 
 	/**

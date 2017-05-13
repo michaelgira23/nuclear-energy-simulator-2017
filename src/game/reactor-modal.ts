@@ -29,13 +29,30 @@ export class ReactorModal {
 			top: y
 		});
 
-		this.$modal.find('.reactor-details-close').click(() => {
+		this.$modal.find('.reactor-details-close').click(event => {
 			this.close();
-			this.closed = true;
 		});
+		// console.log('calll hander lcikc docuemtn');
+		// $(document).click(event => {
+		// 	console.log('CLICK HANDLER');
+		// 	const target = $(event.target);
+		// 	if (!target.is(this.$modal) && !target.parents().is(this.$modal)) {
+		// 		this.close();
+		// 	}
+		// });
 	}
 
 	close() {
-		this.$modal.remove();
+		if (!this.closed) {
+			this.$modal.remove();
+		}
+		this.closed = true;
+	}
+
+	closeHandler(event) {
+		const target = $(event.target);
+		if (!target.is(this.$modal) && !target.parents().is(this.$modal)) {
+			this.close();
+		}
 	}
 }

@@ -1,6 +1,6 @@
 import * as interact from 'interactjs';
 import { Reactor, reactorSpecs } from './reactor';
-import { capitalize, numberWithCommas } from './utils';
+import { capitalize, leadingZeros, numberSign, numberWithCommas } from './utils';
 
 declare const $: any;
 
@@ -14,7 +14,7 @@ export class Game {
 	reactors: Reactor[] = [];
 
 	// How many milliseconds should pass each game trick
-	gameTick = 100;
+	gameTick = 500;
 	// How often player gains money and stuff (in game ticks)
 	gameInterval = 10;
 
@@ -30,7 +30,7 @@ export class Game {
 	set money(value: number) {
 		this._money = value;
 		this.$game.find('.status-money span').text(numberWithCommas(value));
-		this.disableReactors(value);
+		this.disableReactors();
 	}
 
 	// How much money gained every interval
@@ -39,17 +39,7 @@ export class Game {
 	}
 	set moneyGained(value: number) {
 		this._moneyGained = value;
-		// Whether or not to add `+` or `-` symbol
-		let sign = '';
-		switch (Math.sign(value)) {
-			case 1:
-				sign = '+';
-				break;
-			case -1:
-				sign = '-';
-				break;
-		}
-		this.$game.find('.status-moneygained span').text(`${sign}$${numberWithCommas(value)}`);
+		this.$game.find('.status-moneygained span').text(`${numberSign(value)}$${numberWithCommas(value)}`);
 	}
 
 	// Percentage between 0 and 1 (inclusive) how much pollution there is
@@ -68,7 +58,7 @@ export class Game {
 		this._time = value;
 		const seconds = value % 60;
 		const minutes = Math.floor(value / 60);
-		this.$game.find('.status-time span').text(`${minutes}:${seconds < 9 ? '0' + seconds : seconds}`);
+		this.$game.find('.status-time span').text(`${minutes}:${leadingZeros(seconds)}`);
 	}
 
 	/**
@@ -86,6 +76,7 @@ export class Game {
 			last: lastName
 		};
 
+		// this.money = 0;
 		this.money = 200000;
 		this.moneyGained = 10000;
 		this.pollution = 0.8
@@ -102,7 +93,7 @@ export class Game {
 		for (const size of Object.keys(reactorSpecs)) {
 			const reactor = reactorSpecs[size];
 			$buy.append(`
-				<div class="buy-reactor disabled" data-size="${size}" data-cost="${reactor.cost}">
+				<div class="buy-reactor" data-size="${size}" data-cost="${reactor.cost}">
 					<h5 class="reactor-name">${capitalize(size)} Reactor</h5>
 					<img class="reactor-image" src="images/reactors/${size}/${size}.png">
 					<p>Cost <strong>$${numberWithCommas(reactor.cost)}</strong></p>
@@ -110,6 +101,8 @@ export class Game {
 				</div>
 			`);
 		}
+		// After reactors are added to the shop, make sure they're updated
+		this.disableReactors();
 
 		// Make reactors in shop draggable
 		this.reactorsInteractable = interact('.buy-reactor:not(.disabled)')
@@ -172,7 +165,7 @@ export class Game {
 	 * Disable nuclear reactors that player can't afford
 	 */
 
-	disableReactors(value: number) {
+	disableReactors(value: number = this.money) {
 		this.$game.find('.buy-reactor')
 			.each(function() {
 				if (value >= parseFloat($(this).attr('data-cost'))) {

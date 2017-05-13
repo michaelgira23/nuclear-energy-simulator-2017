@@ -37,7 +37,6 @@ export class Reactor {
 		});
 
 		this.$elem.click(event => {
-			console.log(event);
 			const dimensions = event.target.getBoundingClientRect();
 			// Toggle modal
 			if (this.modal && !this.modal.closed) {
@@ -76,6 +75,14 @@ export const reactorSpecs: { [key: string]: ReactorSpec } = {
 		cost: 51000,
 		mw: 1500
 	}
+};
+
+export const uranium = {
+	// How many US dollars for one pound of uranium
+	costPerPound: 20,
+	// Greater than this percentage is considered dangerous (highly enriched uranium or HEU)
+	// Anything lower than this is considered low-enriched uranium (LEU)
+	dangerThreshold: 20
 };
 
 export interface ReactorSpec {

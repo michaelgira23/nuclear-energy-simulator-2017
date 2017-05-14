@@ -95,7 +95,7 @@ export class Game {
 			$buy.append(`
 				<div class="buy-reactor" data-size="${size}" data-cost="${reactor.cost}">
 					<h5 class="reactor-name">${capitalize(size)} Reactor</h5>
-					<img class="reactor-image" src="images/reactors/${size}/${size}.png">
+					<img class="reactor-image" src="images/reactors//${size}.png">
 					<p>Cost <strong>$${numberWithCommas(reactor.cost)}</strong></p>
 					<p>Generates <strong>${reactor.mw} MW</strong></p>
 				</div>

@@ -25,15 +25,15 @@ export class Reactor {
 
 		this.game.$view.append(`
 			<div id="${this.id}" class="reactor">
-				<img src="images/reactors/${size}/${size}.png">
+				<img src="images/reactors/${size}.png">
 			</div>
 		`);
 
 		this.$elem = $(`.reactor#${this.id}`);
 
 		this.$elem.css({
-			left: x - 50,
-			top: y - 55
+			left: x - 65,
+			top: y - 73
 		});
 
 		this.detailsPopup = new ReactorDetails(this);

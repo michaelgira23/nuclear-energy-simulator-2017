@@ -129,21 +129,6 @@ button {
 					width: 100%;
 				}
 			}
-
-			.reactor-details {
-				position: absolute;
-
-				padding: 0.5rem;
-
-				background: $political;
-				border-right: 5px solid $political-border;
-				border-bottom: 5px solid $political-border;
-				color: #eee;
-
-				.reactor-details-close {
-					margin-left: 0.5rem;
-				}
-			}
 		}
 	}
 
@@ -177,5 +162,11 @@ button {
 				}
 			}
 		}
+	}
+}
+
+.reactor-details {
+	.reactor-details-enriched-progress {
+		margin-bottom: 1rem;
 	}
 }

@@ -124,7 +124,9 @@ export class Reactor {
 	onInterval() {
 		if (this.enriching) {
 			// Increase the uranium enrichment by 1 percent every interval
-			this.uraniumEnrichment += 1;
+			if (++this.uraniumEnrichment > uranium.thresholds.weaponsGrade) {
+				/** @todo lose game */
+			}
 		}
 	}
 }
@@ -145,7 +147,9 @@ export const uranium = {
 		// Greater than this percentage is considered dangerous (highly enriched uranium or HEU)
 		// Anything lower than this is considered low-enriched uranium (LEU)
 		// You lose the game if you go over this percentage
-		danger: 20
+		danger: 20,
+		// How enriched uranium should be to be used for weapons
+		weaponsGrade: 90
 	},
 	// How many megawatt are produced from one pound of uranium
 	mwPerPound: 10886

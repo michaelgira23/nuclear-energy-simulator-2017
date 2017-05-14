@@ -12,20 +12,22 @@ export class ReactorDetails {
 	constructor(private reactor: Reactor) {
 		reactor.$elem.popover({
 			content: `
-				<h5>Generating <strong><span id="reactor-details-mw-label-${this.id}"></span> MWh</strong></h5>
-				<h5><strong><span id="reactor-details-supply-label-${this.id}"></span> lbs</strong> of Uranium</h5>
-				<div class="progress">
-					<div id="reactor-details-supply-progress-${this.id}" class="progress-bar"></div>
+				<div id="reactor-details-${this.id}" class="reactor-details">
+					<h5>Generating <strong><span class="reactor-details-mw-label"></span> MWh</strong></h5>
+					<h5><strong><span class="reactor-details-supply-label"></span> lbs</strong> of Uranium</h5>
+					<div class="reactor-details-supply-progress progress">
+						<div class="progress-bar"></div>
+					</div>
+					<h5>Uranium is <strong><span class="reactor-details-enriched-label"></span>% enriched</strong></h5>
+					<div class="reactor-details-enriched-progress progress">
+						<div class="progress-bar"></div>
+					</div>
+					<button class="reactor-details-start btn btn-success btn-block">Start Reactor</button>
+					<button class="reactor-details-stop btn btn-danger btn-block">Stop Reactor</button>
+					<button class="reactor-details-buy btn btn-info btn-block btn-sm">Buy Uranium</button>
+					<button class="reactor-details-enrich btn btn-primary btn-block btn-sm">Enrich Uranium</button>
+					<button class="reactor-details-stop-enrich btn btn-warning btn-block btn-sm">Stop Enrichment</button>
 				</div>
-				<h5>Uranium is <strong><span id="reactor-details-enriched-label-${this.id}"></span>% enriched</strong></h5>
-				<div class="progress">
-					<div id="reactor-details-enriched-progress-${this.id}" class="progress-bar"></div>
-				</div>
-				<button id="reactor-details-start-${this.id}" class="btn btn-success">Start Reactor</button>
-				<button id="reactor-details-stop-${this.id}" class="btn btn-danger">Stop Reactor</button>
-				<button id="reactor-details-buy-${this.id}" class="btn btn-info">Buy Uranium</button>
-				<button id="reactor-details-enrich-${this.id}" class="btn btn-primary">Enrich Uranium</button>
-				<button id="reactor-details-stop-enrich-${this.id}"n class="btn btn-warning">Stop Enrichment</button>
 			`,
 			html: true,
 			title: `${capitalize(this.reactor.size)} Reactor`
@@ -39,17 +41,17 @@ export class ReactorDetails {
 
 	updateData() {
 		// Labels and progress bar
-		const $mwLabel = $(`#reactor-details-mw-label-${this.id}`);
-		const $supplyLabel = $(`#reactor-details-supply-label-${this.id}`);
-		const $supplyProgress = $(`#reactor-details-supply-progress-${this.id}`);
-		const $enrichedLabel = $(`#reactor-details-enriched-label-${this.id}`);
-		const $enrichedProgress = $(`#reactor-details-enriched-progress-${this.id}`);
+		const $mwLabel = $(`#reactor-details-${this.id} .reactor-details-mw-label`);
+		const $supplyLabel = $(`#reactor-details-${this.id} .reactor-details-supply-label`);
+		const $supplyProgress = $(`#reactor-details-${this.id} .reactor-details-supply-progress .progress-bar`);
+		const $enrichedLabel = $(`#reactor-details-${this.id} .reactor-details-enriched-label`);
+		const $enrichedProgress = $(`#reactor-details-${this.id} .reactor-details-enriched-progress .progress-bar`);
 		// Control buttons
-		const $start = $(`#reactor-details-start-${this.id}`);
-		const $stop = $(`#reactor-details-stop-${this.id}`);
-		const $buyUranium = $(`#reactor-details-buy-${this.id}`);
-		const $enrich = $(`#reactor-details-enrich-${this.id}`);
-		const $stopEnrich = $(`#reactor-details-stop-enrich-${this.id}`);
+		const $start = $(`#reactor-details-${this.id} .reactor-details-start`);
+		const $stop = $(`#reactor-details-${this.id} .reactor-details-stop`);
+		const $buyUranium = $(`#reactor-details-${this.id} .reactor-details-buy`);
+		const $enrich = $(`#reactor-details-${this.id} .reactor-details-enrich`);
+		const $stopEnrich = $(`#reactor-details-${this.id} .reactor-details-stop-enrich`);
 
 		const supplyPercentage = (this.reactor.uraniumSupply / this.reactor.specs.uraniumCapacity) * 100;
 
@@ -75,7 +77,7 @@ export class ReactorDetails {
 
 		// Uranium enrichment progress bar
 		$enrichedProgress.text(`${this.reactor.uraniumEnrichment}%`);
-		$enrichedProgress.css({ width: `${this.reactor.uraniumEnrichment}%` });
+		$enrichedProgress.css({ width: `${this.reactor.uraniumEnrichment * (100 / uranium.thresholds.weaponsGrade)}%` });
 
 		// If currently enriching uranium, make the progress bar striped and animated
 		if (this.reactor.enriching) {

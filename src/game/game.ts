@@ -20,7 +20,6 @@ export class Game {
 
 	private _money: number;
 	private _moneyGained: number;
-	private _pollution: number;
 	private _time: number;
 
 	// El DINERO
@@ -40,14 +39,6 @@ export class Game {
 	set moneyGained(value: number) {
 		this._moneyGained = value;
 		this.$game.find('.status-moneygained span').text(`${numberSign(value)}$${numberWithCommas(value)}`);
-	}
-
-	// Percentage between 0 and 1 (inclusive) how much pollution there is
-	get pollution() {
-		return this._pollution;
-	}
-	set pollution(value: number) {
-		this._pollution = value;
 	}
 
 	// How many game ticks have passed
@@ -77,9 +68,8 @@ export class Game {
 		};
 
 		// this.money = 0;
-		this.money = 200000;
-		this.moneyGained = 10000;
-		this.pollution = 0.8
+		this.money = 10000;
+		this.moneyGained = 1000;
 
 		this.time = 0;
 		setInterval(() => {
@@ -97,7 +87,7 @@ export class Game {
 					<h5 class="reactor-name">${capitalize(size)} Reactor</h5>
 					<img class="reactor-image" src="images/reactors//${size}.png">
 					<p>Cost <strong>$${numberWithCommas(reactor.cost)}</strong></p>
-					<p>Generates <strong>${reactor.mw} MW</strong></p>
+					<p>Generate up to <strong>${reactor.mwCapacity} MW</strong></p>
 				</div>
 			`);
 		}

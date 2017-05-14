@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<%- include('../partials/header', { title: 'Nuclear Energy Simulator 2017 - Play' }) %>
+		<link rel="stylesheet" href="css/play.css">
+	</head>
+	<body>
+		<div id="game">
+			<div class="game-content">
+				<div class="game-buy">
+					<h3>Build a Reactor</h3>
+					<p>Simply drag and drop onto the map</p>
+					<div class="buy-reactors"></div>
+				</div>
+				<div class="game-view">
+					<img class="background" src="images/game-map.png">
+				</div>
+			</div>
+			<div class="game-status">
+				<div class="status-group">
+					<p class="status-item status-time">Time <span>12:00</span></p>
+				</div>
+				<div class="status-group">
+					<p class="status-item status-money"><strong>$<span>0</span></strong></p>
+					<p class="status-item status-moneygained"><strong><span>0</span></strong> <small>per hour</small></p>
+				</div>
+				<div class="status-group">
+					<p class="status-item status-generated"><strong><span>0</span></strong> <small>Megawatts per hour</small></p>
+					<p class="status-item status-percentage"><strong><span>0</span>%</strong> <small>Converted to Nuclear</small></p>
+				</div>
+			</div>
+		</div>
+
+		<%- include('../partials/footer') %>
+		<script src="js/nuclear.js"></script>
+	</body>
+</html>

@@ -1,0 +1,176 @@
+$padding: 0.5rem;
+$transition-duration: 600ms;
+$transition-easing: cubic-bezier(0.23, 1, 0.32, 1);
+
+$political: #0275d8;
+$political-border: darken($political, 10%);
+
+$social: #f0ad4e;
+$social-border: darken($social, 10%);
+
+$economic: #d9534f;
+$economic-border: darken($economic, 10%);
+
+html, body {
+	height: 100%;
+}
+
+button {
+	cursor: pointer;
+}
+
+#game {
+	width: 100%;
+	height: 100%;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+
+	.game-content {
+		width: 100%;
+		height: 100%;
+
+		display: flex;
+
+		.game-buy {
+			height: 100%;
+			width: 35rem;
+
+			padding: $padding;
+
+			background: #f7f7f7;
+
+			.buy-reactors {
+				.buy-reactor {
+					width: 12rem;
+
+					margin-bottom: $padding / 2;
+					padding: $padding;
+
+					position: relative;
+					display: inline-block;
+
+					background: darken(#f7f7f7, 10%);
+					border: 1px solid rgba(#292b2c, 0.5);
+
+					transition: background, border $transition-duration $transition-easing;
+
+					&.dragging {
+						background: none;
+						border: none;
+						z-index: 100;
+
+						*:not(.reactor-image) {
+							opacity: 0;
+						}
+					}
+
+					&.disabled {
+						cursor: not-allowed;
+						color: mix(#292b2c, rgba(#292b2c, 0.5));
+
+						&:before {
+							content: ' ';
+							position: absolute;
+							top: 0;
+							right: 0;
+							bottom: 0;
+							left: 0;
+							background: rgba(#292b2c, 0.5);
+						}
+					}
+
+					* {
+						transition: opacity ($transition-duration / 2) $transition-easing;
+					}
+
+					p {
+						margin: 0;
+					}
+
+					.reactor-name {
+						text-align: center;
+					}
+
+					.reactor-image {
+						width: 8rem;
+						display: block;
+						margin: 0 auto;
+					}
+				}
+			}
+		}
+
+		.game-view {
+			width: auto;
+
+			display: flex;
+			justify-content: center;
+			align-items: center;
+
+			background: #3777dd;
+
+			.background {
+				max-width: 100%;
+				max-height: 100%;
+			}
+
+			.reactor {
+				width: 8rem;
+				position: absolute;
+				cursor: pointer;
+
+				&:hover {
+					box-shadow: inset 0 0 0 1000px rgba(0,0,0,.2);
+				}
+
+				img {
+					width: 100%;
+				}
+			}
+		}
+	}
+
+	.game-status {
+		width: 100%;
+		padding: 0.5rem;
+
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		background: #292b2c;
+		color: #eee;
+		box-shadow: 0 -3px 6px rgba(0,0,0,0.16), 0 -3px 6px rgba(0,0,0,0.23);
+
+		.status-group {
+			display: flex;
+			align-items: center;
+
+			.status-item {
+				margin: 0;
+				font-size: 1.5rem;
+
+				&:not(:first-child) {
+					padding-left: $padding;
+				}
+
+				&:not(:last-child) {
+					padding-right: $padding;
+					border-right: 1px solid rgba(#eee, 0.25);
+				}
+			}
+		}
+	}
+}
+
+.reactor-details {
+	.reactor-details-enriched-progress {
+		margin-bottom: 1rem;
+	}
+
+	.progress-bar {
+		transition: width 250ms ease-in-out;
+	}
+}

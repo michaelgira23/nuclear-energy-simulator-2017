@@ -12,9 +12,13 @@ app.set('views', path.join(__dirname, 'views'));
 app.use('/', express.static(path.join(__dirname, 'public', 'images', 'favicon')));
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-// Main page
+// Main pages
 app.get('/', (req, res) => {
-	res.render('pages/index');
+	res.render('pages/main');
+});
+
+app.get('/play', (req, res) => {
+	res.render('pages/play');
 });
 
 app.listen(port, () => console.log(`Server listening on *:${port}`));

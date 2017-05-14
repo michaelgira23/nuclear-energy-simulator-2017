@@ -25,7 +25,7 @@ export class ReactorDetails {
 				<button id="reactor-details-stop-${this.id}" class="btn btn-danger">Stop Reactor</button>
 				<button id="reactor-details-buy-${this.id}" class="btn btn-info">Buy Uranium</button>
 				<button id="reactor-details-enrich-${this.id}" class="btn btn-primary">Enrich Uranium</button>
-				<butto id="reactor-details-stop-enrich-${this.id}"n class="btn btn-warning">Stop Enrichment</button>
+				<button id="reactor-details-stop-enrich-${this.id}"n class="btn btn-warning">Stop Enrichment</button>
 			`,
 			html: true,
 			title: `${capitalize(this.reactor.size)} Reactor`
@@ -38,26 +38,42 @@ export class ReactorDetails {
 	}
 
 	updateData() {
-		// Add how many megawatts plant is producing
+		// Labels and progress bar
 		const $mwLabel = $(`#reactor-details-mw-label-${this.id}`);
+		const $supplyLabel = $(`#reactor-details-supply-label-${this.id}`);
+		const $supplyProgress = $(`#reactor-details-supply-progress-${this.id}`);
+		const $enrichedLabel = $(`#reactor-details-enriched-label-${this.id}`);
+		const $enrichedProgress = $(`#reactor-details-enriched-progress-${this.id}`);
+		// Control buttons
+		const $start = $(`#reactor-details-start-${this.id}`);
+		const $stop = $(`#reactor-details-stop-${this.id}`);
+		const $buyUranium = $(`#reactor-details-buy-${this.id}`);
+		const $enrich = $(`#reactor-details-enrich-${this.id}`);
+		const $stopEnrich = $(`#reactor-details-stop-enrich-${this.id}`);
+
+		const supplyPercentage = (this.reactor.uraniumSupply / this.reactor.specs.uraniumCapacity) * 100;
+
+		// Cost how much it would take to fill uranium supply
+		let cost = (this.reactor.specs.uraniumCapacity * uranium.cost.perPound) + uranium.cost.extra;
+		// If player is poor and doesn't have enough money, fallback to using all of the player's money to buy only a freaction of the uranium
+		if (cost > this.reactor.game.money && this.reactor.game.money > 0) {
+			cost = this.reactor.game.money;
+		}
+
+		// Add how many megawatts plant is producing
 		$mwLabel.text(`${this.reactor.mw}/${this.reactor.specs.mwCapacity}`);
 
 		// How much uranium the plant has
-		const supplyPercentage = (this.reactor.uraniumSupply / this.reactor.specs.uraniumCapacity) * 100;
-		const $supplyLabel = $(`#reactor-details-supply-label-${this.id}`);
 		$supplyLabel.text(`${this.reactor.uraniumSupply}/${this.reactor.specs.uraniumCapacity}`);
 
 		// Uranium supply progress bar
-		const $supplyProgress = $(`#reactor-details-supply-progress-${this.id}`);
 		$supplyProgress.text(`${supplyPercentage}%`);
 		$supplyProgress.css({ width: `${supplyPercentage}%` });
 
 		// How enriched the uranium is
-		const $enrichedLabel = $(`#reactor-details-enriched-label-${this.id}`);
 		$enrichedLabel.text(`${this.reactor.uraniumEnrichment}`);
 
 		// Uranium enrichment progress bar
-		const $enrichedProgress = $(`#reactor-details-enriched-progress-${this.id}`);
 		$enrichedProgress.text(`${this.reactor.uraniumEnrichment}%`);
 		$enrichedProgress.css({ width: `${this.reactor.uraniumEnrichment}%` });
 
@@ -83,11 +99,8 @@ export class ReactorDetails {
 			$enrichedProgress.removeClass('bg-success bg-warning');
 		}
 
-		const $start = $(`#reactor-details-start-${this.id}`);
-		const $stop = $(`#reactor-details-stop-${this.id}`);
-
-		// Disable start button if not enough uranium
-		$start.prop('disabled', this.reactor.uraniumSupply <= 0);
+		// Disable start button if not enough uranium or uranium isn't enriched
+		$start.prop('disabled', this.reactor.uraniumSupply <= 0 || this.reactor.uraniumEnrichment <= 0);
 
 		// Hide start button if already running and vice versa
 		if (this.reactor.running) {
@@ -99,15 +112,13 @@ export class ReactorDetails {
 		}
 
 		// Update button to show how much it would cost to buy uranium for the plant
-		const $buyUranium = $(`#reactor-details-buy-${this.id}`);
-		// Cost how much it would take to fill uranium supply
-		let cost = (this.reactor.specs.uraniumCapacity * uranium.cost.perPound) + uranium.cost.extra;
-		// If player is poor and doesn't have enough money, fallback to using all of the player's money to buy only a freaction of the uranium
-		if (cost > this.reactor.game.money && this.reactor.game.money > 0) {
-			cost = this.reactor.game.money;
-		}
 		$buyUranium.text(`Buy Uranium ($${cost})`);
-		$buyUranium.prop('disabled', this.reactor.game.money <= 0);
+		// Disable button if not enough money
+		$buyUranium.prop('disabled', this.reactor.game.money <= 0
+			// Or uranium supply is already full
+			|| this.reactor.uraniumSupply >= this.reactor.specs.uraniumCapacity
+			// Or uranium already enriched
+			|| this.reactor.uraniumEnrichment > 0);
 
 		// Add click handler for buying uranium
 		$buyUranium.off('click');
@@ -116,11 +127,8 @@ export class ReactorDetails {
 			this.reactor.buyUranium((cost - uranium.cost.extra) / uranium.cost.perPound);
 		});
 
-		const $enrich = $(`#reactor-details-enrich-${this.id}`);
-		const $stopEnrich = $(`#reactor-details-stop-enrich-${this.id}`);
-
-		// Disable uranium enrichment if there's no uranium or it's already enriched
-		$enrich.prop('disabled', this.reactor.uraniumSupply <= 0 || this.reactor.uraniumEnrichment > 0);
+		// Disable uranium enrichment if there's no uranium
+		$enrich.prop('disabled', this.reactor.uraniumSupply <= 0);
 
 		// Hide enrich button if already enriching and vice versa
 		if (this.reactor.enriching) {
@@ -130,10 +138,21 @@ export class ReactorDetails {
 			$enrich.show();
 			$stopEnrich.hide();
 		}
+
+		// Add click handler for enriching uranium
+		$enrich.off('click');
+		$enrich.click(event => {
+			this.reactor.startEnrichment();
+		});
+
+		// Add click handler for enriching uranium
+		$stopEnrich.off('click');
+		$stopEnrich.click(event => {
+			this.reactor.stopEnrichment();
+		});
 	}
 
 	private _onOpen(event) {
-		console.log('open very much');
 		this.closed = false;
 		this.updateData();
 	}

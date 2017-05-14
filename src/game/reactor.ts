@@ -108,6 +108,25 @@ export class Reactor {
 		this.game.money -= cost;
 		this.uraniumSupply += pounds;
 	}
+
+	startEnrichment() {
+		this.enriching = true;
+	}
+
+	stopEnrichment() {
+		this.enriching = false;
+	}
+
+	onTick() {
+
+	}
+
+	onInterval() {
+		if (this.enriching) {
+			// Increase the uranium enrichment by 1 percent every interval
+			this.uraniumEnrichment += 1;
+		}
+	}
 }
 
 export const uranium = {

@@ -13,12 +13,12 @@ export class ReactorDetails {
 		reactor.$elem.popover({
 			content: `
 				<div id="reactor-details-${this.id}" class="reactor-details">
-					<h5>Generating <strong><span class="reactor-details-mw-label"></span> MWh</strong></h5>
-					<h5><strong><span class="reactor-details-supply-label"></span> lbs</strong> of Uranium</h5>
+					<h5><i class="fa fa-bolt" aria-hidden="true"></i> <strong><span class="reactor-details-mw-label"></span> MWh</strong></h5>
+					<h6><strong><span class="reactor-details-supply-label"></span> lbs</strong> of Uranium</h6>
 					<div class="reactor-details-supply-progress progress">
 						<div class="progress-bar"></div>
 					</div>
-					<h5>Uranium is <strong><span class="reactor-details-enriched-label"></span>% enriched</strong></h5>
+					<h6>Uranium is <strong><span class="reactor-details-enriched-label"></span>% enriched</strong></h6>
 					<div class="reactor-details-enriched-progress progress">
 						<div class="progress-bar"></div>
 					</div>

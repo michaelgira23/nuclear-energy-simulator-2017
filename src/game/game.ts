@@ -1,17 +1,20 @@
 import * as interact from 'interactjs';
 import { Reactor, reactorSpecs } from './reactor';
-import { capitalize, leadingZeros, numberSign, numberWithCommas } from './utils';
+import { capitalize, leadingZeros, numberSign, numberWithCommas, round } from './utils';
 
 declare const $: any;
 
 export class Game {
 
+	name: { first: string, last: string };
+
 	$game: any;
 	$view: any;
 	reactorsInteractable: any;
 
-	name: { first: string, last: string };
 	reactors: Reactor[] = [];
+	// MWh each reactor is producing
+	reactorsMwhProduction: { [id: string]: number } = {};
 
 	// How many milliseconds should pass each game trick
 	// 60 game ticks = 1 hour
@@ -19,9 +22,19 @@ export class Game {
 	// How often player gains money and stuff (in game ticks)
 	gameInterval = 10;
 
+	private _totalMwh = 0;
 	private _money: number;
 	private _moneyGained: number;
 	private _time: number;
+
+	// MWh total from all reactors
+	get totalMwh() {
+		return this._totalMwh;
+	}
+	set totalMwh(value) {
+		this._totalMwh = value;
+		this.$game.find('.status-generated span').text(round(value));
+	}
 
 	// El DINERO
 	get money() {
@@ -161,6 +174,17 @@ export class Game {
 
 	addReactor(size: string, x: number, y: number) {
 		this.reactors.push(new Reactor(this, size, x, y));
+	}
+
+	/**
+	 * Set the MWh a specific reactor is producing
+	 */
+
+	changeReactorProduction(id: string, mwh: number) {
+		this.reactorsMwhProduction[id] = mwh;
+		this.totalMwh = Object.keys(this.reactorsMwhProduction).reduce((acc, val) => {
+			return acc + this.reactorsMwhProduction[val];
+		}, 0);
 	}
 
 	/**

@@ -11,7 +11,7 @@ export class Reactor {
 	specs: ReactorSpec;
 	detailsPopup: ReactorDetails;
 
-	// How many ticks since last state change (set to off or on, change enrichment)
+	// How many ticks since last state change (turn off or on)
 	ticksSinceStateChange = 0;
 	// How many megawatts reactor was producing at the time of the last state change
 	mwSinceStateChange = 0;
@@ -39,6 +39,7 @@ export class Reactor {
 	}
 	set mw(value: number) {
 		this._mw = value;
+		this.game.changeReactorProduction(this.id, value);
 		this.detailsPopup.updateData();
 	}
 
@@ -158,10 +159,10 @@ export class Reactor {
 			startupEasingPercentage = 1;
 		}
 
-		// How many megawatts-hours reactor should be producing
+		// How many megawatts-hours reactor should be producing this tick
 		let produceMwh = (reactorPowerEasing(startupEasingPercentage) * (targetUsage - this.mwSinceStateChange)) + this.mwSinceStateChange;
 		// How many pounds of uranium needed to produce target mw at this current moment in the easing
-		let useUranium = produceMwh / uranium.mwPerPound;
+		let useUranium = (produceMwh / uranium.mwPerPound) / 60;
 
 		// If we need to use more uranium than in supply, just use rest of supply
 		if (useUranium > this.uraniumSupply) {
@@ -169,8 +170,8 @@ export class Reactor {
 			produceMwh = useUranium * uranium.mwPerPound;
 		}
 
-		this.uraniumSupply -= useUranium / 60;
-		this.mw = produceMwh / 60;
+		this.uraniumSupply -= useUranium;
+		this.mw = produceMwh;
 	}
 
 	onInterval() {

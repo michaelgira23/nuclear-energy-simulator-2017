@@ -11,6 +11,11 @@ export class Reactor {
 	specs: ReactorSpec;
 	detailsPopup: ReactorDetails;
 
+	// How many ticks since last state change (set to off or on, change enrichment)
+	ticksSinceStateChange = 0;
+	// How many megawatts reactor was producing at the time of the last state change
+	mwSinceStateChange = 0;
+
 	private _running = false;
 	private _mw = 0;
 	private _uraniumSupply = 0;
@@ -23,6 +28,8 @@ export class Reactor {
 	}
 	set running(value: boolean) {
 		this._running = value;
+		this.ticksSinceStateChange = 0;
+		this.mwSinceStateChange = this.mw;
 		this.detailsPopup.updateData();
 	}
 
@@ -117,8 +124,53 @@ export class Reactor {
 		this.enriching = false;
 	}
 
-	onTick() {
+	turnOn() {
+		this.running = true;
+	}
 
+	turnOff() {
+		this.running = false;
+	}
+
+	onTick() {
+		this.ticksSinceStateChange++;
+
+		if (this.uraniumSupply <= 0) {
+			this.turnOff();
+			this.uraniumEnrichment = 0;
+		}
+
+		let targetUsage = 0;
+		if (this.running) {
+			if (this.uraniumEnrichment < uranium.thresholds.sweetSpot) {
+				// How many megawatts-hours reactor should eventually be producing
+				targetUsage = (this.uraniumEnrichment / uranium.thresholds.sweetSpot) * this.specs.mwCapacity;
+			} else {
+				// Going any more enriched than sweet spot should flat out at MW capacity
+				targetUsage = this.specs.mwCapacity;
+			}
+		}
+
+		// How many ticks until reactor goes from original state to new state
+		const startupDuration = 5;
+		let startupEasingPercentage = this.ticksSinceStateChange / startupDuration;
+		if (startupEasingPercentage > 1) {
+			startupEasingPercentage = 1;
+		}
+
+		// How many megawatts-hours reactor should be producing
+		let produceMwh = (reactorPowerEasing(startupEasingPercentage) * (targetUsage - this.mwSinceStateChange)) + this.mwSinceStateChange;
+		// How many pounds of uranium needed to produce target mw at this current moment in the easing
+		let useUranium = produceMwh / uranium.mwPerPound;
+
+		// If we need to use more uranium than in supply, just use rest of supply
+		if (useUranium > this.uraniumSupply) {
+			useUranium = this.uraniumSupply;
+			produceMwh = useUranium * uranium.mwPerPound;
+		}
+
+		this.uraniumSupply -= useUranium / 60;
+		this.mw = produceMwh / 60;
 	}
 
 	onInterval() {
@@ -172,6 +224,14 @@ export const reactorSpecs: { [key: string]: ReactorSpec } = {
 		uraniumCapacity: 3.3
 	}
 };
+
+// When reactor is turned on, don't immediately produce full power.
+// x is the fraction of the animation progress, in the range 0..1
+function reactorPowerEasing(x: number) {
+	return x < 0.5 ?
+		8 * x * x * x * x :
+		1 - Math.pow(-2 * x + 2, 4) / 2;
+}
 
 export interface ReactorSpec {
 	cost: number;

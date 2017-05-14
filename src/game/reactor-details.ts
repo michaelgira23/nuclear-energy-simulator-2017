@@ -1,6 +1,6 @@
 import uuid from 'uuid/v4';
 import { Reactor, uranium } from './reactor';
-import { capitalize } from './utils';
+import { capitalize, round } from './utils';
 
 declare const $: any;
 
@@ -65,13 +65,13 @@ export class ReactorDetails {
 		}
 
 		// Add how many megawatts plant is producing
-		$mwLabel.text(`${this.reactor.mw}/${this.reactor.specs.mwCapacity}`);
+		$mwLabel.text(`${round(this.reactor.mw, 0)}/${this.reactor.specs.mwCapacity}`);
 
 		// How much uranium the plant has
-		$supplyLabel.text(`${this.reactor.uraniumSupply}/${this.reactor.specs.uraniumCapacity}`);
+		$supplyLabel.text(`${round(this.reactor.uraniumSupply)}/${this.reactor.specs.uraniumCapacity}`);
 
 		// Uranium supply progress bar
-		$supplyProgress.text(`${supplyPercentage}%`);
+		$supplyProgress.text(`${round(supplyPercentage)}%`);
 		$supplyProgress.css({ width: `${supplyPercentage}%` });
 
 		// How enriched the uranium is
@@ -114,6 +114,17 @@ export class ReactorDetails {
 			$start.show();
 			$stop.hide();
 		}
+
+		// Push its buttons to turn it on
+		$start.off('click');
+		$start.click(event => {
+			this.reactor.turnOn();
+		});
+
+		$stop.off('click');
+		$stop.click(event => {
+			this.reactor.turnOff();
+		});
 
 		// Update button to show how much it would cost to buy uranium for the plant
 		$buyUranium.text(`Buy Uranium ($${cost})`);

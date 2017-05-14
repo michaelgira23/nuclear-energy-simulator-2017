@@ -54,6 +54,8 @@ export class ReactorDetails {
 		const $stopEnrich = $(`#reactor-details-${this.id} .reactor-details-stop-enrich`);
 
 		const supplyPercentage = (this.reactor.uraniumSupply / this.reactor.specs.uraniumCapacity) * 100;
+		// Use logarithmic function to determine progress bar
+		const enrichedProgressPercentage = Math.log(this.reactor.uraniumEnrichment + 1) * (100 / Math.log(uranium.thresholds.weaponsGrade + 1));
 
 		// Cost how much it would take to fill uranium supply
 		let cost = (this.reactor.specs.uraniumCapacity * uranium.cost.perPound) + uranium.cost.extra;
@@ -77,7 +79,7 @@ export class ReactorDetails {
 
 		// Uranium enrichment progress bar
 		$enrichedProgress.text(`${this.reactor.uraniumEnrichment}%`);
-		$enrichedProgress.css({ width: `${this.reactor.uraniumEnrichment * (100 / uranium.thresholds.weaponsGrade)}%` });
+		$enrichedProgress.css({ width: `${enrichedProgressPercentage}%` });
 
 		// If currently enriching uranium, make the progress bar striped and animated
 		if (this.reactor.enriching) {

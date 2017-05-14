@@ -169,4 +169,8 @@ button {
 	.reactor-details-enriched-progress {
 		margin-bottom: 1rem;
 	}
+
+	.progress-bar {
+		transition: width 250ms ease-in-out;
+	}
 }

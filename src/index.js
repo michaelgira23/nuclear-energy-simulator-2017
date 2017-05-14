@@ -9,6 +9,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Static files
+app.use('/', express.static(path.join(__dirname, 'public', 'images', 'favicon')));
 app.use('/', express.static(path.join(__dirname, 'public')));
 
 // Main page

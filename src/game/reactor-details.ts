@@ -11,6 +11,11 @@ export class ReactorDetails {
 	constructor(private reactor: Reactor) {
 		this.reactor.$elem.popover({
 			content: `
+				<h5><strong>20 tons / 50 tons capacity</strong> of Uranium</h5>
+				<div class="progress">
+					<div class="progress-bar" style="width: 25%">25%</div>
+				</div>
+				<h5>Uranium is <strong>20% enriched</strong></h5>
 				<div class="progress">
 					<div class="progress-bar" style="width: 25%">25%</div>
 				</div>

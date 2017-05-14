@@ -44,4 +44,6 @@ gulp.task('ts:prod', ['tsPipeline:build:release']);
 gulp.task('ts:watch', ['tsPipeline:watch']);
 
 gulp.task('assets', ['assets:images', 'assets:js']);
-gulp.task('default', ['assets', 'sass', 'sass:watch', 'ts:watch']);
+gulp.task('dev', ['assets', 'sass', 'sass:watch', 'ts:watch']);
+gulp.task('prod', ['assets', 'sass', 'ts:prod']);
+gulp.task('default', ['dev']);

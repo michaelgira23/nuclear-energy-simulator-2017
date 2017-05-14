@@ -14,7 +14,7 @@ export class Game {
 	reactors: Reactor[] = [];
 
 	// How many milliseconds should pass each game trick
-	gameTick = 500;
+	gameTick = 1000;
 	// How often player gains money and stuff (in game ticks)
 	gameInterval = 10;
 
@@ -68,7 +68,7 @@ export class Game {
 		};
 
 		// this.money = 0;
-		this.money = 10000;
+		this.money = 20000;
 		this.moneyGained = 1000;
 
 		this.time = 0;

@@ -88,7 +88,7 @@ export class ReactorDetails {
 		}
 
 		const $buyUranium = $(`#reactor-details-buy-${this.id}`);
-		let cost = this.reactor.specs.uraniumCapacity * uranium.costPerPound;
+		let cost = (this.reactor.specs.uraniumCapacity * uranium.costPerPound) + uranium.extraCost;
 		if (cost > this.reactor.game.money && this.reactor.game.money > 0) {
 			cost = this.reactor.game.money;
 		}

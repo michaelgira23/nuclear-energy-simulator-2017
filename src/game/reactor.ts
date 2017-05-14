@@ -90,6 +90,8 @@ export class Reactor {
 export const uranium = {
 	// How many US dollars for one pound of uranium
 	costPerPound: 30,
+	// How many additional US dollars for buying uranium (like transportation and stuff)
+	extraCost: 100,
 	// Different constants for the percentage of enriching uranium
 	thresholds: {
 		// Anything from here to above will produce the max amount of electricity

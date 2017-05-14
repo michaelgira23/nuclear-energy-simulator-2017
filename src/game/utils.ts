@@ -28,3 +28,13 @@ export function numberSign(num: number) {
 			return '';
 	}
 }
+
+// Don't need this yet, but uncomment if I do
+
+// // Round a number to a certain amount of decimal pounts
+// export function round(num: number, precision = 2) {
+// 	const factor = Math.pow(10, precision);
+// 	const tempNumber = num * factor;
+// 	const roundedTempNumber = Math.round(tempNumber);
+// 	return roundedTempNumber / factor;
+// }

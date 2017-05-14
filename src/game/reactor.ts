@@ -85,13 +85,40 @@ export class Reactor {
 
 		this.detailsPopup = new ReactorDetails(this);
 	}
+
+	// Buy a certain amount of uranium (in pounds)
+	buyUranium(pounds: number) {
+		const cost = (pounds * uranium.cost.perPound) + uranium.cost.extra;
+
+		// If the user can't afford this amount of uranium
+		if (this.game.money < cost) {
+			return;
+		}
+
+		// Check if uranium is already enriched
+		if (this.uraniumEnrichment > 0) {
+			return;
+		}
+
+		// Check if reactor has the capacity for this
+		if ((this.uraniumSupply + pounds) > this.specs.uraniumCapacity) {
+			return;
+		}
+
+		this.game.money -= cost;
+		this.uraniumSupply += pounds;
+	}
 }
 
 export const uranium = {
-	// How many US dollars for one pound of uranium
-	costPerPound: 30,
-	// How many additional US dollars for buying uranium (like transportation and stuff)
-	extraCost: 100,
+	// Economic
+	cost: {
+		// How many US dollars for one pound of uranium
+		perPound: 30,
+		// How many additional US dollars for buying uranium (like transportation and stuff)
+		// This is fixed no matter how much uranium you buy
+		extra: 100
+	},
 	// Different constants for the percentage of enriching uranium
 	thresholds: {
 		// Anything from here to above will produce the max amount of electricity
@@ -101,25 +128,25 @@ export const uranium = {
 		// You lose the game if you go over this percentage
 		danger: 20
 	},
-	// How many megawatt-hours are produced from one pound of uranium
-	mwPerPound: 24000
+	// How many megawatt are produced from one pound of uranium
+	mwPerPound: 10886
 };
 
 export const reactorSpecs: { [key: string]: ReactorSpec } = {
 	small: {
 		cost: 17000,
 		mwCapacity: 500,
-		uraniumCapacity: 0.5
+		uraniumCapacity: 1.1
 	},
 	medium: {
 		cost: 27200,
 		mwCapacity: 800,
-		uraniumCapacity: 0.8
+		uraniumCapacity: 1.8
 	},
 	large: {
 		cost: 51000,
 		mwCapacity: 1500,
-		uraniumCapacity: 1.5
+		uraniumCapacity: 3.3
 	}
 };
 

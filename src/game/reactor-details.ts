@@ -38,30 +38,37 @@ export class ReactorDetails {
 	}
 
 	updateData() {
+		// Add how many megawatts plant is producing
 		const $mwLabel = $(`#reactor-details-mw-label-${this.id}`);
 		$mwLabel.text(`${this.reactor.mw}/${this.reactor.specs.mwCapacity}`);
 
+		// How much uranium the plant has
 		const supplyPercentage = (this.reactor.uraniumSupply / this.reactor.specs.uraniumCapacity) * 100;
 		const $supplyLabel = $(`#reactor-details-supply-label-${this.id}`);
 		$supplyLabel.text(`${this.reactor.uraniumSupply}/${this.reactor.specs.uraniumCapacity}`);
 
+		// Uranium supply progress bar
 		const $supplyProgress = $(`#reactor-details-supply-progress-${this.id}`);
 		$supplyProgress.text(`${supplyPercentage}%`);
 		$supplyProgress.css({ width: `${supplyPercentage}%` });
 
+		// How enriched the uranium is
 		const $enrichedLabel = $(`#reactor-details-enriched-label-${this.id}`);
 		$enrichedLabel.text(`${this.reactor.uraniumEnrichment}`);
 
+		// Uranium enrichment progress bar
 		const $enrichedProgress = $(`#reactor-details-enriched-progress-${this.id}`);
 		$enrichedProgress.text(`${this.reactor.uraniumEnrichment}%`);
 		$enrichedProgress.css({ width: `${this.reactor.uraniumEnrichment}%` });
 
+		// If currently enriching uranium, make the progress bar striped and animated
 		if (this.reactor.enriching) {
 			$enrichedProgress.addClass('progress-bar-striped progress-bar-animated');
 		} else {
 			$enrichedProgress.removeClass('progress-bar-striped progress-bar-animated');
 		}
 
+		// Change enrichment bar depending on level of enrichment
 		if (this.reactor.uraniumEnrichment <= uranium.thresholds.sweetSpot) {
 			// Between 0% and 5% - Good
 			$enrichedProgress.addClass('bg-success');
@@ -77,8 +84,12 @@ export class ReactorDetails {
 		}
 
 		const $start = $(`#reactor-details-start-${this.id}`);
-		$start.prop('disabled', this.reactor.uraniumSupply <= 0);
 		const $stop = $(`#reactor-details-stop-${this.id}`);
+
+		// Disable start button if not enough uranium
+		$start.prop('disabled', this.reactor.uraniumSupply <= 0);
+
+		// Hide start button if already running and vice versa
 		if (this.reactor.running) {
 			$start.hide();
 			$stop.show();
@@ -87,16 +98,31 @@ export class ReactorDetails {
 			$stop.hide();
 		}
 
+		// Update button to show how much it would cost to buy uranium for the plant
 		const $buyUranium = $(`#reactor-details-buy-${this.id}`);
-		let cost = (this.reactor.specs.uraniumCapacity * uranium.costPerPound) + uranium.extraCost;
+		// Cost how much it would take to fill uranium supply
+		let cost = (this.reactor.specs.uraniumCapacity * uranium.cost.perPound) + uranium.cost.extra;
+		// If player is poor and doesn't have enough money, fallback to using all of the player's money to buy only a freaction of the uranium
 		if (cost > this.reactor.game.money && this.reactor.game.money > 0) {
 			cost = this.reactor.game.money;
 		}
 		$buyUranium.text(`Buy Uranium ($${cost})`);
 		$buyUranium.prop('disabled', this.reactor.game.money <= 0);
 
+		// Add click handler for buying uranium
+		$buyUranium.off('click');
+		$buyUranium.click(event => {
+			// Reverse the cost algorithm above in case if the player is poor and we had to lower the cost
+			this.reactor.buyUranium((cost - uranium.cost.extra) / uranium.cost.perPound);
+		});
+
 		const $enrich = $(`#reactor-details-enrich-${this.id}`);
 		const $stopEnrich = $(`#reactor-details-stop-enrich-${this.id}`);
+
+		// Disable uranium enrichment if there's no uranium or it's already enriched
+		$enrich.prop('disabled', this.reactor.uraniumSupply <= 0 || this.reactor.uraniumEnrichment > 0);
+
+		// Hide enrich button if already enriching and vice versa
 		if (this.reactor.enriching) {
 			$enrich.hide();
 			$stopEnrich.show();

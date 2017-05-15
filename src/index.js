@@ -21,4 +21,8 @@ app.get('/play', (req, res) => {
 	res.render('pages/play');
 });
 
+app.get('/essay', (req, res) => {
+	res.render('pages/essay');
+});
+
 app.listen(port, () => console.log(`Server listening on *:${port}`));

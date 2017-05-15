@@ -3,12 +3,15 @@ import { Reactor, ReactorSize, reactorSpecs } from './reactor';
 import { capitalize, leadingZeros, numberSign, numberWithCommas, round } from './utils';
 
 declare const $: any;
+declare const Tether: any;
 
 export class Game {
 
 	name: { first: string, last: string };
 
 	$game: any;
+	$buy: any;
+	$status: any;
 	$view: any;
 	reactorsInteractable: any;
 
@@ -66,6 +69,8 @@ export class Game {
 		this.$game.find('.status-time span').text(`${minutes}:${leadingZeros(seconds)}`);
 	}
 
+	tutorial: Tutorial[] = [];
+
 	/**
 	 * Constructor
 	 */
@@ -75,7 +80,10 @@ export class Game {
 		// Game initialization
 
 		this.$game = $(query);
+		this.$buy = this.$game.find('.game-buy');
+		this.$status = this.$game.find('.game-status');
 		this.$view = this.$game.find('.game-view');
+
 		this.name = {
 			first: firstName,
 			last: lastName
@@ -166,6 +174,31 @@ export class Game {
 		// 		$('.reactor').popover('hide');
 		// 	}
 		// });
+
+		// Tutorial after stuff is initialized
+		this.tutorial = [
+			{
+				section: 'view',
+				target: this.$view,
+				text: 'This is the game view. You have an overview of your country, and can manage your nuclear reactors by clicking on them.',
+				attachment: 'center center',
+				targetAttachment: 'center center'
+			},
+			{
+				section: 'status',
+				target: this.$status,
+				text: 'This is the status bar. This has current information about your game.',
+				attachment: 'bottom center',
+				targetAttachment: 'top center'
+			},
+			{
+				section: null,
+				target: this.$game,
+				text: 'Good luck!',
+				attachment: 'center center',
+				targetAttachment: 'center center'
+			}
+		];
 	}
 
 	/**
@@ -219,6 +252,90 @@ export class Game {
 		/** @todo Do some back-end logic to log game */
 		window.location.href = `/lose?reason=${reason}`;
 	}
+
+	/**
+	 * Tutorial for the uneducated
+	 */
+
+	startTutorial(i = 0) {
+		this.tutorialTextBox(this.tutorial[i], () => {
+			if (this.tutorial[++i]) {
+				this.startTutorial(i);
+			}
+		});
+	}
+
+	tutorialTextBox(tutorial: Tutorial, callback?: () => any) {
+		this.focus(tutorial.section);
+
+		const box = this.$view.append(`
+			<div class="tutorial-box">
+				<p>${tutorial.text}</p>
+				<button class="btn btn-primary">Got it!</buttton>
+			</div>
+		`);
+		const $box = $('.tutorial-box').hide().fadeIn();
+		const tether = new Tether({
+			element: $box,
+			target: tutorial.target,
+			attachment: tutorial.attachment,
+			targetAttachment: tutorial.targetAttachment
+		});
+
+		$box.find('button').click(event => {
+			$box.fadeOut();
+			this.focus(null);
+
+			setInterval(() => {
+				tether.destroy();
+				$box.remove();
+			}, 400);
+
+			if (typeof callback === 'function') {
+				callback();
+			}
+		});
+	}
+
+	/**
+	 * Add an overlay to every part of the game except for the specified section.
+	 * Null will open all sections
+	 */
+
+	focus(section: GameSection) {
+		if (section === null) {
+			this.$buy.removeClass('overlay');
+			this.$status.removeClass('overlay');
+			this.$view.removeClass('overlay');
+			return;
+		}
+
+		if (section === 'buy') {
+			this.$buy.removeClass('overlay');
+		} else {
+			this.$buy.addClass('overlay');
+		}
+
+		if (section === 'status') {
+			this.$game.find('.game-status').removeClass('overlay');
+		} else {
+			this.$game.find('.game-status').addClass('overlay');
+		}
+
+		if (section === 'view') {
+			this.$view.removeClass('overlay');
+		} else {
+			this.$view.addClass('overlay');
+		}
+	}
 }
 
 export type Reason = 'political' | 'social' | 'economic';
+export type GameSection = 'buy' | 'status' | 'view';
+interface Tutorial {
+	section: GameSection;
+	target: any;
+	text: string;
+	attachment: string;
+	targetAttachment: string;
+}

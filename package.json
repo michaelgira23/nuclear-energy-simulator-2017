@@ -4,8 +4,8 @@
   "description": "Plan, build, and manage nuclear power plants to become the greenest country on the planet",
   "main": "src/index.js",
   "scripts": {
-    "start": "concurrently \"node ./src/index.js\" \"gulp\"",
-	"prod": "gulp prod",
+    "start": "concurrently \"nodemon\" \"gulp\"",
+    "prod": "gulp prod",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -26,15 +26,15 @@
   "dependencies": {
     "ejs": "^2.5.6",
     "express": "^4.15.2",
-    "gulp-sass": "^3.1.0",
-    "gulp-webpack-typescript-pipeline": "^5.0.3",
     "interactjs": "^1.2.8",
-    "paper": "^0.11.3",
     "uuid": "^3.0.1"
   },
   "devDependencies": {
     "concurrently": "^3.4.0",
     "gulp": "^3.9.1",
+    "gulp-sass": "^3.1.0",
+    "gulp-webpack-typescript-pipeline": "^5.0.3",
+    "nodemon": "^1.11.0",
     "typescript": "^2.3.2"
   }
 }

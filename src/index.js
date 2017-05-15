@@ -26,7 +26,7 @@ app.get('/win', (req, res) => {
 		end: {
 			title: 'Nuclear Energy Simulator 2017 - Winner!',
 			exclamation: 'Good Job!',
-			message: 'You\'ve avoided all the political, social, and economic challenges that come with adopting nuclear energy. Want to learn more?',
+			message: 'You\'ve avoided all the political, social, and economic challenges that come with adopting nuclear energy! Want to learn more?',
 			link: '/essay'
 		}
 	});

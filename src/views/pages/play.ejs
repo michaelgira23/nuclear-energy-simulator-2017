@@ -5,16 +5,23 @@
 		<link rel="stylesheet" href="css/play.css">
 	</head>
 	<body>
-		<div class="game-overlay">
-			<div class="tutorial">
-				<h1>Would you to take a tutorial?</h1>
-				<div class="tutorial-response">
-					<button class="tutorial-yes btn btn-block btn-primary">Sure!</button>
-					<button class="tutorial-no btn btn-block btn-outline-danger">This isn't my first rodeo</button>
+		<div id="game">
+			<div class="game-overlay">
+				<div class="overlay-prompt tutorial">
+					<h1>Would you to take a tutorial?</h1>
+					<div class="overlay-response">
+						<button class="tutorial-yes btn btn-block btn-primary">Sure!</button>
+						<button class="tutorial-no btn btn-block btn-outline-danger">This Isn't My First Rodeo</button>
+					</div>
+				</div>
+				<div class="overlay-prompt win">
+					<h1>You won! You converted your country to 100% nuclear! Would you like to keep playing?</h1>
+					<div class="overlay-response">
+						<button class="win-keepplaying btn btn-block btn-success">Keep Playing</button>
+						<button class="win-done btn btn-block btn-outline-primary">My Work Here Is Done</button>
+					</div>
 				</div>
 			</div>
-		</div>
-		<div id="game">
 			<div class="game-content">
 				<div class="game-buy">
 					<h3>Build a Reactor</h3>

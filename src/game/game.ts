@@ -13,8 +13,13 @@ export class Game {
 	$buy: any;
 	$status: any;
 	$view: any;
-	reactorsInteractable: any;
 
+	$overlayTutorial: any;
+	$overlayWin: any;
+
+	// Interact.js object for dragging reactors from shop to view
+	reactorsInteractable: any;
+	// Array of reactors on the view
 	reactors: Reactor[] = [];
 	// MWh each reactor is producing
 	reactorsMwhProduction: { [id: string]: number } = {};
@@ -24,6 +29,13 @@ export class Game {
 	gameTick = 100;
 	// How often player gains money and stuff (in game ticks)
 	gameInterval = 10;
+	// The setInterval for making the game do stuff
+	gameTickInterval: any;
+
+	// Player must surpass 7500 megawatts to convert the country to 100% nuclear and therefore win the game
+	totalEnergyUsage = 7500;
+	// Whether or not user has already recieved win prompt
+	alreadyWon = false;
 
 	private _totalMwh = 0;
 	private _money: number;
@@ -36,7 +48,17 @@ export class Game {
 	}
 	set totalMwh(value) {
 		this._totalMwh = value;
-		this.$game.find('.status-generated span').text(round(value));
+		this.$status.find('.status-generated span').text(round(value));
+		this.$status.find('.status-percentage span').text(round(this.nuclearPercentage));
+
+		if (this.nuclearPercentage >= 100 && !this.alreadyWon) {
+			this.win();
+		}
+	}
+
+	// Get what percentage of the country is converted to nuclear
+	get nuclearPercentage() {
+		return (this.totalMwh / this.totalEnergyUsage) * 100;
 	}
 
 	// El DINERO
@@ -45,7 +67,7 @@ export class Game {
 	}
 	set money(value: number) {
 		this._money = value;
-		this.$game.find('.status-money span').text(numberWithCommas(value));
+		this.$status.find('.status-money span').text(numberWithCommas(value));
 		this.disableReactors();
 	}
 
@@ -55,7 +77,7 @@ export class Game {
 	}
 	set moneyGained(value: number) {
 		this._moneyGained = value;
-		this.$game.find('.status-moneygained span').text(`${numberSign(value)}$${numberWithCommas(value)}`);
+		this.$status.find('.status-moneygained span').text(`${numberSign(value)}$${numberWithCommas(value)}`);
 	}
 
 	// How many game ticks have passed
@@ -66,7 +88,7 @@ export class Game {
 		this._time = value;
 		const seconds = value % 60;
 		const minutes = Math.floor(value / 60);
-		this.$game.find('.status-time span').text(`${minutes}:${leadingZeros(seconds)}`);
+		this.$status.find('.status-time span').text(`${minutes}:${leadingZeros(seconds)}`);
 	}
 
 	tutorial: Tutorial[] = [];
@@ -84,6 +106,9 @@ export class Game {
 		this.$status = this.$game.find('.game-status');
 		this.$view = this.$game.find('.game-view');
 
+		this.$overlayTutorial = this.$game.find('.overlay-prompt.tutorial').hide();
+		this.$overlayWin = this.$game.find('.overlay-prompt.win').hide();
+
 		this.name = {
 			first: firstName,
 			last: lastName
@@ -94,14 +119,6 @@ export class Game {
 		this.moneyGained = 1000;
 
 		this.time = 0;
-		setInterval(() => {
-			this.time++;
-			this.reactors.forEach(reactor => reactor.onTick());
-			if (this.time % this.gameInterval === 0) {
-				this.money += this.moneyGained;
-				this.reactors.forEach(reactor => reactor.onInterval());
-			}
-		}, this.gameTick);
 
 		// Add reactors from array into the HTML
 		const $buy = this.$game.find('.buy-reactors');
@@ -138,6 +155,8 @@ export class Game {
 				const dimensions = event.target.getBoundingClientRect();
 				event.target.setAttribute('data-mouse-offset-x', dimensions.left - event.clientX);
 				event.target.setAttribute('data-mouse-offset-y', dimensions.top - event.clientY);
+				event.target.setAttribute('data-original-x', dimensions.left);
+				event.target.setAttribute('data-original-y', dimensions.top);
 			})
 			.on('dragmove', event => {
 				let x = parseFloat(event.target.getAttribute('data-x'));
@@ -152,9 +171,24 @@ export class Game {
 				event.target.setAttribute('data-y', y);
 			})
 			.on('dragend', event => {
-				const dimensions = event.target.getBoundingClientRect();
-				const x = event.clientX + Number(event.target.getAttribute('data-mouse-offset-x')) + (dimensions.width / 2);
-				const y = event.clientY + Number(event.target.getAttribute('data-mouse-offset-y')) + (dimensions.height / 2);
+				const reactorDimensions = event.target.getBoundingClientRect();
+				const buyDimensions = this.$buy.get(0).getBoundingClientRect();
+
+				// Get mouse x position
+				const x = event.clientX
+					// Add coordinates mouse started dragging relative to reactor position
+					+ Number(event.target.getAttribute('data-mouse-offset-x'))
+					// Make it in the center of the div
+					+ (reactorDimensions.width / 2)
+					// Subtract width of buy div
+					- buyDimensions.width;
+
+				// Get mouse y position
+				const y = event.clientY
+					// Add coordinates mouse started dragging relative to reactor position
+					+ Number(event.target.getAttribute('data-mouse-offset-y'))
+					// Make it in the center of the div
+					+ (reactorDimensions.height / 2);
 
 				// Only add if player has enough money
 				const reactorSize = event.target.getAttribute('data-size');
@@ -192,13 +226,69 @@ export class Game {
 				targetAttachment: 'top center'
 			},
 			{
-				section: null,
+				section: 'all',
 				target: this.$game,
 				text: 'Good luck!',
 				attachment: 'center center',
 				targetAttachment: 'center center'
 			}
 		];
+
+		// Ask user if they want to have a tutorial
+		this.focus('none');
+		this.$overlayTutorial.fadeIn();
+
+		const $yesTutorial = this.$overlayTutorial.find('.tutorial-yes');
+		const $noTutorial = this.$overlayTutorial.find('.tutorial-no');
+
+		// If player doesn't want tutorial, close overlay
+		$noTutorial.click(event => {
+			$yesTutorial.off('click');
+			$noTutorial.off('click');
+			this.$overlayTutorial.fadeOut();
+			this.focus('all');
+			this.start();
+		});
+
+		// If player does want overlay, start tutorial
+		$yesTutorial.click(event => {
+			$yesTutorial.off('click');
+			$noTutorial.off('click');
+			this.$overlayTutorial.fadeOut();
+			this.focus('all');
+			this.startTutorial();
+		});
+
+	}
+
+	/**
+	 * Start the game
+	 */
+
+	start() {
+		if (this.gameTickInterval) {
+			return;
+		}
+
+		this.gameTickInterval = setInterval(() => {
+			this.time++;
+			this.reactors.forEach(reactor => reactor.onTick());
+			if (this.time % this.gameInterval === 0) {
+				this.money += this.moneyGained;
+				this.reactors.forEach(reactor => reactor.onInterval());
+			}
+		}, this.gameTick);
+	}
+
+	/**
+	 * Pause the game
+	 */
+
+	pause() {
+		if (this.gameTickInterval) {
+			clearInterval(this.gameTickInterval);
+		}
+		this.gameTickInterval = null;
 	}
 
 	/**
@@ -241,7 +331,33 @@ export class Game {
 
 	win() {
 		/** @todo Do some back-end logic to log game */
-		window.location.href = '/win';
+
+		this.alreadyWon = true;
+
+		// Ask user if they want to have a tutorial
+		this.focus('none');
+		this.$overlayWin.fadeIn();
+
+		const $keepPlaying = this.$overlayWin.find('.win-keepplaying');
+		const $done = this.$overlayWin.find('.win-done');
+
+		// If player wants to keep playing, resume game
+		$keepPlaying.click(event => {
+			$keepPlaying.off('click');
+			$done.off('click');
+			this.$overlayWin.fadeOut();
+			this.focus('all');
+			this.start();
+		});
+
+		// If player wants to stop, redirect to win page
+		$done.click(event => {
+			$keepPlaying.off('click');
+			$done.off('click');
+			this.$overlayWin.fadeOut();
+
+			window.location.href = '/win';
+		});
 	}
 
 	/**
@@ -284,7 +400,7 @@ export class Game {
 
 		$box.find('button').click(event => {
 			$box.fadeOut();
-			this.focus(null);
+			this.focus('all');
 
 			setInterval(() => {
 				tether.destroy();
@@ -303,10 +419,16 @@ export class Game {
 	 */
 
 	focus(section: GameSection) {
-		if (section === null) {
+		if (section === 'all') {
 			this.$buy.removeClass('overlay');
 			this.$status.removeClass('overlay');
 			this.$view.removeClass('overlay');
+			return;
+		}
+		if (section === 'none') {
+			this.$buy.addClass('overlay');
+			this.$status.addClass('overlay');
+			this.$view.addClass('overlay');
 			return;
 		}
 
@@ -331,7 +453,8 @@ export class Game {
 }
 
 export type Reason = 'political' | 'social' | 'economic';
-export type GameSection = 'buy' | 'status' | 'view';
+export type GameSection = 'all' | 'buy' | 'status' | 'view' | 'none';
+
 interface Tutorial {
 	section: GameSection;
 	target: any;

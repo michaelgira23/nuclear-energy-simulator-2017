@@ -259,56 +259,54 @@ export class Game {
 			{
 				section: 'view',
 				target: () => this.$view.find('.reactor-overlay'),
-				// target: () => this.$view,
-				// target: this.$view,
 				text: 'To manage your reactor, click on it.',
 				direction: 'left',
 				nextEvent: 'reactor:details:open'
 			},
-			// {
-			// 	section: 'view',
-			// 	target: () => this.$view.find('.reactor-details-buy'),
-			// 	text: 'You need uranium in order to run a nuclear reactor! <strong>Click the \'Buy Uranium\' button.</strong>',
-			// 	direction: 'left',
-			// 	nextEvent: 'reactor:buy',
-			// 	// backEvent: 'reactor:details:close'
-			// },
-			// {
-			// 	section: 'view',
-			// 	target: () => this.$view.find('.reactor-details-enrich'),
-			// 	text: 'Before the uranium can be used, it must be enriched. <strong>Click on the \'Enrich Uranium\' button.</strong>',
-			// 	direction: 'left',
-			// 	nextEvent: 'reactor:enrich'
-			// },
-			// {
-			// 	section: 'view',
-			// 	target: () => this.$view.find('.reactor-details-enriched-progress'),
-			// 	text: '<strong>The optimal level is 5% enriched uranium. You lose the game if you enrich weapons-grade uranium which is above 90%.</strong>',
-			// 	direction: 'left',
-			// 	nextEvent: 'reactor:enrich:done',
-			// 	// backEvent: 'reactor:stopenrich'
-			// },
-			// {
-			// 	section: 'view',
-			// 	target: () => this.$view.find('.reactor-details-stop'),
-			// 	text: 'The uranium is all done! <strong>Click the \'Stop Enrichment\' button.</strong>',
-			// 	direction: 'left',
-			// 	nextEvent: 'reactor:stopenrich'
-			// },
-			// {
-			// 	section: 'view',
-			// 	target: () => this.$view.find('.reactor-details-start'),
-			// 	text: 'Let\'s get started now! Click the \'Star Reactor\' button to start generating electricity.',
-			// 	direction: 'left',
-			// 	nextEvent: 'reactor:on',
-			// 	// backEvent: 'reactor:enrich'
-			// },
-			// {
-			// 	section: 'view',
-			// 	target: () => this.$view.find('.reactor-overlay'),
-			// 	text: 'Don\'t forget to check on your reactors once in a while to replenish your uranium supply!',
-			// 	direction: 'left'
-			// },
+			{
+				section: 'view',
+				target: () => this.$view.find('.reactor-details-buy'),
+				text: 'You need uranium in order to run a nuclear reactor! <strong>Click the \'Buy Uranium\' button.</strong>',
+				direction: 'left',
+				nextEvent: 'reactor:buy',
+				// backEvent: 'reactor:details:close'
+			},
+			{
+				section: 'view',
+				target: () => this.$view.find('.reactor-details-enrich'),
+				text: 'Before the uranium can be used, it must be enriched. <strong>Click on the \'Enrich Uranium\' button.</strong>',
+				direction: 'left',
+				nextEvent: 'reactor:enrich'
+			},
+			{
+				section: 'view',
+				target: () => this.$view.find('.reactor-details-enriched-progress'),
+				text: '<strong>The optimal level is 5% enriched uranium. You lose the game if you enrich weapons-grade uranium which is above 90%.</strong>',
+				direction: 'left',
+				nextEvent: 'reactor:enrich:done',
+				// backEvent: 'reactor:stopenrich'
+			},
+			{
+				section: 'view',
+				target: () => this.$view.find('.reactor-details-stop'),
+				text: 'The uranium is all done! <strong>Click the \'Stop Enrichment\' button.</strong>',
+				direction: 'left',
+				nextEvent: 'reactor:stopenrich'
+			},
+			{
+				section: 'view',
+				target: () => this.$view.find('.reactor-details-start'),
+				text: 'Let\'s get started now! Click the \'Star Reactor\' button to start generating electricity.',
+				direction: 'left',
+				nextEvent: 'reactor:on',
+				// backEvent: 'reactor:enrich'
+			},
+			{
+				section: 'view',
+				target: () => this.$view.find('.reactor-overlay'),
+				text: 'Don\'t forget to check on your reactors once in a while to replenish your uranium supply!',
+				direction: 'left'
+			},
 			{
 				section: 'all',
 				target: this.$game,
@@ -478,7 +476,6 @@ export class Game {
 		const id = uuid();
 
 		let $target;
-		console.log('target', tutorial.target);
 		if (typeof tutorial.target === 'function') {
 			console.log('target is function', tutorial.target())
 			$target = $(tutorial.target())
@@ -486,9 +483,21 @@ export class Game {
 			$target = $(tutorial.target);
 		}
 
-		// console.log('$target', $target);
+		// Create an element in exact position as target, so we don't mess up any existing popovers
+		$('body').append(`<div id="tutorial-target-${id}" class="tutorial-target"></div>`);
+		const $tutorialOverlay = $(`#tutorial-target-${id}`);
 
-		$target.popover({
+		$tutorialOverlay.width($target.width())
+			.height($target.height());
+
+		const tetherTarget = new Tether({
+			element: $tutorialOverlay,
+			target: $target,
+			attachment: 'center center',
+			targetAttachment: 'center center'
+		});
+
+		$tutorialOverlay.popover({
 			content: `
 				<div id="tutorial-${id}" class="tutorial-box">
 					<p>${tutorial.text}</p>
@@ -501,23 +510,23 @@ export class Game {
 		});
 
 		// Remove directional class and move to center if direction is center
-		$target.on('shown.bs.popover', event => {
+		$tutorialOverlay.on('shown.bs.popover', event => {
 			// Sorta hacky but it's 2:20am
 			if (tutorial.direction === 'center') {
 				const $popover = $(`#tutorial-${id}`).parents('.popover');
 				// Remove popover class to get rid of arrow
 				$popover.removeClass('bs-tether-element-attached-right bs-tether-target-attached-left');
 				// Add a new tether for the center of the element
-				const tether = new Tether({
+				const tetherPopup = new Tether({
 					element: $popover,
-					target: $target,
+					target: $tutorialOverlay,
 					attachment: 'center center',
 					targetAttachment: 'center center'
 				});
 			}
 		});
 
-		$target.popover('show');
+		$tutorialOverlay.popover('show');
 
 		const eventHandlerFactory = next => {
 			return event => {
@@ -529,18 +538,16 @@ export class Game {
 					this.$game.off(tutorial.backEvent);
 				}
 
+				$tutorialOverlay.popover('hide');
+				this.focus('all');
+
 				setTimeout(() => {
-					$target.popover('hide');
-					this.focus('all');
-
-					setTimeout(() => {
-						$target.popover('dispose');
-					}, 400);
-
-					if (typeof callback === 'function') {
-						callback(next);
-					}
+					$tutorialOverlay.popover('dispose');
 				}, 400);
+
+				if (typeof callback === 'function') {
+					callback(next);
+				}
 			}
 		}
 

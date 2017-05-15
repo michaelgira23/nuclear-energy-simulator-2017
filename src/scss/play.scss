@@ -27,6 +27,10 @@ button {
 	min-width: 15rem;
 }
 
+.tutorial-target {
+	pointer-events: none;
+}
+
 #game {
 	width: 100%;
 	height: 100%;

@@ -201,4 +201,24 @@ export class Game {
 				}
 			});
 	}
+
+	/**
+	 * Call this when the player wins the game
+	 */
+
+	win() {
+		/** @todo Do some back-end logic to log game */
+		window.location.href = '/win';
+	}
+
+	/**
+	 * Call this when the player loses the game
+	 */
+
+	lose(reason: Reason) {
+		/** @todo Do some back-end logic to log game */
+		window.location.href = `/lose?reason=${reason}`;
+	}
 }
+
+export type Reason = 'political' | 'social' | 'economic';

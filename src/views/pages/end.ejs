@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<%- include('../partials/header', { title: end.title }) %>
+		<link rel="stylesheet" href="css/end.css">
+	</head>
+	<body>
+		<div class="message">
+			<h1 class="display-2"><%= end.exclamation %></h1>
+			<p><%= end.message %></p>
+			<div class="buttons">
+				<a href="<%= end.link %>" class="btn btn-lg btn-block btn-info">Read the Essay</a>
+				<a href="/play" class="btn btn-lg btn-block btn-success">Play Again</a>
+				<a href="/" class="btn btn-lg btn-block btn-warning">Back to Menu</a>
+			</div>
+		</div>
+		<div class="footer">
+			<h4>Created By Michael Gira</h4>
+		</div>
+
+		<%- include('../partials/footer') %>
+		<script src="js/nuclear.js"></script>
+	</body>
+</html>

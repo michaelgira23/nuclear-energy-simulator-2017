@@ -178,7 +178,7 @@ export class Reactor {
 		if (this.enriching) {
 			// Increase the uranium enrichment by 1 percent every interval
 			if (++this.uraniumEnrichment > uranium.thresholds.weaponsGrade) {
-				/** @todo lose game */
+				this.game.lose('political');
 			}
 		}
 	}

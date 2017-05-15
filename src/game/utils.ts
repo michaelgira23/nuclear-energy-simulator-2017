@@ -3,6 +3,11 @@ export function capitalize(str: string) {
 	return str[0].toUpperCase() + str.substr(1);
 }
 
+// Check if element within array
+export function includes(haystack: any[], needle: any) {
+	return haystack.indexOf(needle) > -1;
+}
+
 // Add a '0' to the beginning of a number if it takes less than the required length
 export function leadingZeros(num: number, places = 2) {
 	let str = num.toString();

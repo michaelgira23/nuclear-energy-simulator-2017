@@ -170,9 +170,15 @@ export class ReactorDetails {
 	private _onOpen(event) {
 		this.closed = false;
 		this.updateData();
+		// Emit reactor event for tutorial
+		console.log('trigger reactor:details:open');
+		this.reactor.game.$game.trigger('reactor:details:open');
 	}
 
 	private _onClose(event) {
 		this.closed = true;
+		// Emit reactor event for tutorial
+		console.log('trigger reactor:details:close');
+		this.reactor.game.$game.trigger('reactor:details:close');
 	}
 }

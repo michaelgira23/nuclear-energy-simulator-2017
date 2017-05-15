@@ -58,6 +58,11 @@ export class Reactor {
 	}
 	set uraniumEnrichment(value: number) {
 		this._uraniumEnrichment = value;
+		// Emit reactor event for tutorial
+		if (value >= 5) {
+			console.log('trigger reactor:enrich:done');
+			this.game.$game.trigger('reactor:enrich:done');
+		}
 		this.detailsPopup.updateData();
 	}
 
@@ -81,6 +86,7 @@ export class Reactor {
 		this.game.$view.append(`
 			<div id="${this.id}" class="reactor">
 				<img src="images/reactors/${size}.png">
+				<div class="reactor-overlay"></div>
 			</div>
 		`);
 
@@ -92,6 +98,10 @@ export class Reactor {
 		});
 
 		this.detailsPopup = new ReactorDetails(this);
+
+		// Emit reactor event for tutorial
+		console.log('trigger reactor:create');
+		this.game.$game.trigger('reactor:create');
 	}
 
 	// Buy a certain amount of uranium (in pounds)
@@ -115,29 +125,47 @@ export class Reactor {
 
 		this.game.money -= cost;
 		this.uraniumSupply += pounds;
+
+		// Emit reactor event for tutorial
+		console.log('trigger reactor:buy');
+		this.game.$game.trigger('reactor:buy');
 	}
 
 	startEnrichment() {
 		this.enriching = true;
+		// Emit reactor event for tutorial
+		console.log('trigger reactor:enrich');
+		this.game.$game.trigger('reactor:enrich');
 	}
 
 	stopEnrichment() {
 		this.enriching = false;
+		// Emit reactor event for tutorial
+		console.log('trigger reactor:stopenrich');
+		this.game.$game.trigger('reactor:stopenrich');
 	}
 
 	turnOn() {
 		this.running = true;
+		// Emit reactor event for tutorial
+		console.log('trigger reactor:on');
+		this.game.$game.trigger('reactor:on');
 	}
 
 	turnOff() {
 		this.running = false;
+		// Emit reactor event for tutorial
+		console.log('trigger reactor:off');
+		this.game.$game.trigger('reactor:off');
 	}
 
 	onTick() {
 		this.ticksSinceStateChange++;
 
 		if (this.uraniumSupply <= 0) {
-			this.turnOff();
+			if (this.running) {
+				this.turnOff();
+			}
 			this.uraniumEnrichment = 0;
 		}
 

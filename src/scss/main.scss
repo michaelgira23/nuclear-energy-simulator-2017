@@ -2,12 +2,29 @@ html, body {
 	height: 100%;
 }
 
-body {
-	background-image: url('/images/main-screen.png');
+html:before {
+	$blur: 5px;
+
+	content: ' ';
+	position: fixed;
+	top: -$blur * 2;
+	right: -$blur * 2;
+	bottom: -$blur * 2;
+	left: -$blur * 2;
+	z-index: -1;
+
+	display: block;
+	background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.3)), url('/images/main-screen.png');
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;
+	width: calc(100% + #{$blur * 4});
+	height: calc(100% + #{$blur * 4});
 
+	filter: blur($blur);
+}
+
+body {
 	display: flex;
 	justify-content: center;
 	align-items: center;

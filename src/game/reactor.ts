@@ -70,7 +70,7 @@ export class Reactor {
 		this.detailsPopup.updateData();
 	}
 
-	constructor(public game, public size: string, public x: number, public y: number) {
+	constructor(public game, public size: ReactorSize, public x: number, public y: number) {
 		if (reactorSpecs[size]) {
 			this.specs = reactorSpecs[size];
 		} else {
@@ -239,3 +239,5 @@ export interface ReactorSpec {
 	mwCapacity: number; // Thge maximum megawatts the reactor can produce
 	uraniumCapacity: number; // How much uranium in pounds
 }
+
+export type ReactorSize = 'small' | 'medium' | 'large';

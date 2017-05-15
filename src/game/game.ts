@@ -1,5 +1,5 @@
 import * as interact from 'interactjs';
-import { Reactor, reactorSpecs } from './reactor';
+import { Reactor, ReactorSize, reactorSpecs } from './reactor';
 import { capitalize, leadingZeros, numberSign, numberWithCommas, round } from './utils';
 
 declare const $: any;
@@ -172,7 +172,7 @@ export class Game {
 	 * Adds a reactor onto the game
 	 */
 
-	addReactor(size: string, x: number, y: number) {
+	addReactor(size: ReactorSize, x: number, y: number) {
 		this.reactors.push(new Reactor(this, size, x, y));
 	}
 

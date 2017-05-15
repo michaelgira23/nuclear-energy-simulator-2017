@@ -29,3 +29,15 @@ body {
 		margin: 0 auto;
 	}
 }
+
+.footer {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+
+	h4 {
+		margin-left: 0.5rem;
+		color: #fff;
+	}
+}

@@ -209,12 +209,13 @@ export class Game {
 		// 	}
 		// });
 
+		/* tslint:disable:max-line-length */
 		// Tutorial after stuff is initialized
 		this.tutorial = [
 			{
 				section: 'view',
 				target: this.$view,
-				text: 'This is the game view. You have an overview of your country, and can manage your nuclear reactors by clicking on them.',
+				text: 'This is the overview of your country. This is where you will build nuclear reactors by dragging them onto the view and manage them by clicking on existing reactors.',
 				attachment: 'center center',
 				targetAttachment: 'center center'
 			},
@@ -233,6 +234,7 @@ export class Game {
 				targetAttachment: 'center center'
 			}
 		];
+		/* tslint:enable:max-line-length */
 
 		// Ask user if they want to have a tutorial
 		this.focus('none');
@@ -377,6 +379,8 @@ export class Game {
 		this.tutorialTextBox(this.tutorial[i], () => {
 			if (this.tutorial[++i]) {
 				this.startTutorial(i);
+			} else {
+				this.start();
 			}
 		});
 	}

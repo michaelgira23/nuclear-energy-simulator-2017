@@ -19,22 +19,12 @@ button {
 	cursor: pointer;
 }
 
+.popover.bs-tether-element-attached-bottom.bs-tether-target-attached-top {
+	top: auto;
+}
+
 .tutorial-box {
-	max-width: 30rem;
 	min-width: 15rem;
-	padding: 1rem;
-
-	z-index: 10000;
-
-	background: rgba(0, 0, 0, 0.8);
-	border: 1px solid rgba(#fff, 0.8);
-	border-radius: 0.5rem;
-
-	color: #fff;
-
-	p {
-		display: block;
-	}
 }
 
 #game {

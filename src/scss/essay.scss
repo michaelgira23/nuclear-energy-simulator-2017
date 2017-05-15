@@ -31,37 +31,52 @@ html:before {
 
 	background: #fff;
 	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-}
 
-.header {
-	margin-bottom: 2.5rem;
+	.essay {
+		margin-bottom: 6rem;
 
-	p {
-		margin-bottom: 0;
-		font-size: 1.25rem;
+		.header {
+			margin-bottom: 2.5rem;
+
+			p {
+				margin-bottom: 0;
+				font-size: 1.25rem;
+			}
+		}
+
+		.title {
+			margin-bottom: 5rem;
+			text-align: center;
+		}
+
+		.paragraph {
+			font-size: 1.5rem;
+			text-indent: 4rem;
+		}
+
+		.image {
+			margin: 2rem 0;
+
+			img {
+				display: block;
+				margin: 0 auto;
+			}
+
+			.description {
+				font-style: italic;
+			}
+		}
 	}
-}
 
-.title {
-	margin-bottom: 5rem;
-	text-align: center;
-}
+	.bibliography {
+		h3 {
+			text-align: center;
+		}
 
-.paragraph {
-	font-size: 1.5rem;
-	text-indent: 4rem;
-}
-
-.image {
-	margin: 2rem 0;
-
-	img {
-		display: block;
-		margin: 0 auto;
-	}
-
-	.description {
-		font-style: italic;
+		p {
+			padding-left: 4rem;
+			text-indent: -4rem;
+		}
 	}
 }
 

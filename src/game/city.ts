@@ -67,6 +67,10 @@ export class City {
 	set favor(value) {
 		this._favor = value;
 		this.updateDetails();
+
+		if (value <= 0) {
+			this.game.lose('social');
+		}
 	}
 
 	constructor(private game: any, public name: string, public topLeft: Point, public dimensions: Point) {
@@ -79,7 +83,7 @@ export class City {
 
 		this.favor = round((Math.random() * 10) + 10, 0);
 		console.log(this.favor);
-		// this.favor = 20;
+		this.favor = 20;
 
 		const bgDimensions = game.getBackgroundDimensions();
 		const viewDimensions = game.$view.get(0).getBoundingClientRect();
@@ -114,8 +118,30 @@ export class City {
 		const $favorLabel = $(`#city-details-${this.id} .city-details-favor`);
 		const $favorProgress = $(`#city-details-${this.id} .city-details-favor-progress .progress-bar`);
 
-		$favorLabel.text(this.favor);
+		$favorLabel.text(round(this.favor));
 		$favorProgress.css({ width: `${this.favor}%` });
+	}
+
+	// Get distance (in pixels) from this city to a reactor
+	getDistanceToReactor(reactorId: string) {
+		const $reactor = $(`.reactor#${reactorId}`);
+		const cityPoint = this.getCenter(this.$elem.get(0));
+		const reactorPoint = this.getCenter($reactor.get(0));
+		return this.getDistance(cityPoint, reactorPoint);
+	}
+
+	// Get distance between two points
+	getDistance(a: Point, b: Point) {
+		return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+	}
+
+	// Get center point (in pixels) of DOM element
+	getCenter(element: any): Point {
+		const dimensions = element.getBoundingClientRect();
+		return {
+			x: dimensions.left + (dimensions.width / 2),
+			y: dimensions.top + (dimensions.height / 2)
+		};
 	}
 
 	private _onOpen(event) {

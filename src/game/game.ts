@@ -418,7 +418,29 @@ export class Game {
 	 */
 
 	addReactor(size: ReactorSize, position: Point) {
-		this.reactors.push(new Reactor(this, size, position));
+		const reactor = new Reactor(this, size, position);
+		this.reactors.push(reactor);
+
+		const distancesToCities = [];
+
+		for (const city of this.cities) {
+			distancesToCities.push(city.getDistanceToReactor(reactor.id));
+		}
+
+		const maxDistance = Math.max(...distancesToCities);
+
+		for (const city of this.cities) {
+			const distance = city.getDistanceToReactor(reactor.id);
+			const distanceRatio = distance / maxDistance;
+
+			const maxPercentageDecrease = {
+				small: 10,
+				medium: 15,
+				large: 20
+			};
+
+			city.favor -= maxPercentageDecrease[size] * (1 - distanceRatio);
+		}
 	}
 
 	/**

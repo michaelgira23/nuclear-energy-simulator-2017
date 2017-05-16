@@ -232,8 +232,8 @@ export class Game {
 		// });
 
 		// Add city hitboxes onto the game
-		for (const city of cities) {
-			this.addCity(city.topLeft, city.dimensions);
+		for (const city of Object.keys(cities)) {
+			this.addCity(city, cities[city].topLeft, cities[city].dimensions);
 		}
 
 		/* tslint:disable:max-line-length */
@@ -425,8 +425,8 @@ export class Game {
 	 * Add a city onto the game
 	 */
 
-	addCity(topLeft: Point, dimensions: Point) {
-		this.cities.push(new City(this, topLeft, dimensions));
+	addCity(name: string, topLeft: Point, dimensions: Point) {
+		this.cities.push(new City(this, name, topLeft, dimensions));
 	}
 
 	/**
@@ -705,7 +705,7 @@ export class Game {
 		// Assume that height is fixed, width is infinite
 		const unlimitedWidth = viewHeight * imageRatio;
 
-		this.$view.append('<div class="background-visualizer" style="background: rgba(0, 0, 0, 0.05)"></div>');
+		this.$view.append('<div class="background-visualizer"></div>');
 		const $border = $('.background-visualizer');
 
 		let backgroundWidth;
@@ -714,14 +714,12 @@ export class Game {
 		if (unlimitedHeight <= viewHeight) {
 			backgroundWidth = viewWidth;
 			backgroundHeight = unlimitedHeight;
-			// console.log('Width:', viewWidth, 'Height:', unlimitedHeight);
 			$border.width(viewWidth).height(unlimitedHeight);
 		}
 
 		if (unlimitedWidth <= viewWidth) {
 			backgroundWidth = unlimitedWidth;
 			backgroundHeight = viewHeight;
-			// console.log('Width:', unlimitedWidth, 'Height:', viewHeight);
 			$border.width(unlimitedWidth).height(viewHeight);
 		}
 
@@ -733,7 +731,7 @@ export class Game {
 		});
 
 		const dimensions = $border.get(0).getBoundingClientRect();
-		// $border.remove();
+		$border.remove();
 		return dimensions;
 	}
 

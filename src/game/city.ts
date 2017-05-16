@@ -1,9 +1,12 @@
 import uuid from 'uuid/v4';
 import { Point } from './game';
+import { capitalize, round } from './utils';
 
-export const cities: CityInterface[] = [
+declare const $: any;
+
+export const cities: { [name: string]: CityInterface } = {
 	// North City
-	{
+	north: {
 		topLeft: {
 			x: 41,
 			y: 19
@@ -14,7 +17,7 @@ export const cities: CityInterface[] = [
 		}
 	},
 	// East City
-	{
+	east: {
 		topLeft: {
 			x: 65,
 			y: 30
@@ -25,7 +28,7 @@ export const cities: CityInterface[] = [
 		}
 	},
 	// South City
-	{
+	south: {
 		topLeft: {
 			x: 45,
 			y: 74
@@ -36,7 +39,7 @@ export const cities: CityInterface[] = [
 		}
 	},
 	// West City
-	{
+	west: {
 		topLeft: {
 			x: 10,
 			y: 37
@@ -46,19 +49,37 @@ export const cities: CityInterface[] = [
 			y: 19
 		}
 	}
-];
+};
 
 export class City {
 
 	id = uuid();
 	$elem: any;
 
-	constructor(private game: any, public topLeft: Point, public dimensions: Point) {
+	closed = true;
+
+	// Percentage (0 to 100 inclusive) that favor nuclear energy
+	private _favor: number;
+
+	get favor() {
+		return this._favor;
+	}
+	set favor(value) {
+		this._favor = value;
+		this.updateDetails();
+	}
+
+	constructor(private game: any, public name: string, public topLeft: Point, public dimensions: Point) {
+
 		game.$view.append(`
 			<div id="${this.id}" class="city"></div>
 		`);
 
 		this.$elem = this.game.$view.find(`.city#${this.id}`);
+
+		this.favor = round((Math.random() * 10) + 10, 0);
+		console.log(this.favor);
+		// this.favor = 20;
 
 		const bgDimensions = game.getBackgroundDimensions();
 		const viewDimensions = game.$view.get(0).getBoundingClientRect();
@@ -69,6 +90,47 @@ export class City {
 			width: bgDimensions.width * (dimensions.x / 100),
 			height: bgDimensions.height * (dimensions.y / 100)
 		});
+
+		this.$elem.popover({
+			content: `
+				<div id="city-details-${this.id}" class="city-details">
+					<h6><strong><span class="city-details-favor"></span>% of the population want nuclear energy</strong></h6>
+					<div class="city-details-favor-progress progress">
+						<div class="progress-bar"></div>
+					</div>
+				</div>
+			`,
+			html: true,
+			title: `${capitalize(name)} City`
+		});
+
+		this.updateDetails();
+
+		this.$elem.on('shown.bs.popover', event => this._onOpen(event));
+		this.$elem.on('hidden.bs.popover', event => this._onClose(event));
+	}
+
+	updateDetails() {
+		const $favorLabel = $(`#city-details-${this.id} .city-details-favor`);
+		const $favorProgress = $(`#city-details-${this.id} .city-details-favor-progress .progress-bar`);
+
+		$favorLabel.text(this.favor);
+		$favorProgress.css({ width: `${this.favor}%` });
+	}
+
+	private _onOpen(event) {
+		this.closed = false;
+		this.updateDetails();
+		// Emit reactor event for tutorial
+		console.log('trigger city:details:open');
+		this.game.$game.trigger('city:details:open');
+	}
+
+	private _onClose(event) {
+		this.closed = true;
+		// Emit reactor event for tutorial
+		console.log('trigger city:details:close');
+		this.game.$game.trigger('city:details:close');
 	}
 
 }

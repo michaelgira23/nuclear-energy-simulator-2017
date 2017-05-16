@@ -216,7 +216,7 @@ button {
 				cursor: pointer;
 
 				&:hover {
-					box-shadow: inset 0 0 0 1000px rgba(0,0,0,.2);
+					box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.2);
 				}
 
 				img {
@@ -228,10 +228,8 @@ button {
 				position: absolute;
 				cursor: pointer;
 
-				box-shadow: inset 0 0 0 1000px rgba(0,0,0,.2);
-
 				&:hover {
-					box-shadow: inset 0 0 0 1000px rgba(0,0,0,.2);
+					box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.2);
 				}
 			}
 		}

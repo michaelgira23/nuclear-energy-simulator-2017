@@ -520,7 +520,7 @@ export class Game {
 				</button>
 				<strong>Did you know?</strong>
 				<p>${fact.fact}</p>
-				<p>Sources: ${sourceButtons.join(' ')}</p>
+				<p>Sources: ${sourceButtons.join(', ')}</p>
 			</div>
 		`);
 

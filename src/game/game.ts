@@ -116,7 +116,7 @@ export class Game {
 		};
 
 		// this.money = 0;
-		this.money = 20000;
+		this.money = 2000000;
 		this.moneyGained = 1000;
 
 		this.time = 0;
@@ -196,7 +196,7 @@ export class Game {
 				const reactorCost = reactorSpecs[reactorSize].cost;
 				if (this.money >= reactorCost) {
 					this.money -= reactorCost;
-					this.addReactor(reactorSize, x, y);
+					this.addReactor(reactorSize, { x, y });
 				}
 				event.target.style.transform = 'none';
 				event.target.classList.remove('dragging');
@@ -382,8 +382,8 @@ export class Game {
 	 * Adds a reactor onto the game
 	 */
 
-	addReactor(size: ReactorSize, x: number, y: number) {
-		this.reactors.push(new Reactor(this, size, x, y));
+	addReactor(size: ReactorSize, position: Point) {
+		this.reactors.push(new Reactor(this, size, position));
 	}
 
 	/**
@@ -604,6 +604,17 @@ export class Game {
 			this.$view.addClass('overlay');
 		}
 	}
+
+	/**
+	 * Converts pixels to percentage on the board
+	 */
+
+	pixelsToPercent({x, y}: Point): Point {
+		return {
+			x: (x / this.$view.width()) * 100,
+			y: (y / this.$view.height()) * 100
+		}
+	}
 }
 
 export type Reason = 'political' | 'social' | 'economic';
@@ -617,4 +628,9 @@ interface Tutorial {
 	direction: Direction; // Direction relative to target
 	nextEvent?: string;
 	backEvent?: string;
+}
+
+export interface Point {
+	x: number;
+	y: number;
 }

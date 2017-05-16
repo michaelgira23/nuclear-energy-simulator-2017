@@ -43,19 +43,19 @@ app.get('/lose', (req, res) => {
 		political: {
 			title: 'Nuclear Energy Simulator 2017 - Loser!',
 			exclamation: 'Uh oh!',
-			message: 'You\'ve enriched your uranium over 90%. That\'s weapons-grade uranium! Other countries are getting worried and have placed sanctions preventing you from using nuclear technology. Want to learn more?',
+			message: 'You\'ve enriched your uranium over 90%. That\'s weapons-grade uranium! Other countries are getting worried and have placed sanctions preventing you from using nuclear technology. Want to learn more about the political challenges of nuclear adoption?',
 			link: '/essay#political'
 		},
 		social: {
 			title: 'Nuclear Energy Simulator 2017 - Loser!',
 			exclamation: 'Is too much of a good thing a bad thing?',
-			message: 'By building too many nuclear reactors too fast, people have stopped voting for you and you\'ve lost your funding! What to learn more?',
+			message: 'By building too many nuclear reactors too fast, you lost all support for nuclear energy! What to learn more about the social challenges of nuclear adoption?',
 			link: '/essay#social'
 		},
 		economic: {
 			title: 'Nuclear Energy Simulator 2017 - Loser!',
 			exclamation: 'Times are getting rough, man.',
-			message: 'You ran out of money! Who knew a nuclear reactor would be so expensive? Well actually, you would\'ve known if you read the essay. Want to learn more?',
+			message: 'You ran out of money! Who knew a nuclear reactor would be so expensive? Well actually, you would\'ve known if you read the essay. Want to learn more about the economic challenges of nuclear adoption?',
 			link: '/essay#economic'
 		}
 	};

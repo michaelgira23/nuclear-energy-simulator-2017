@@ -88,6 +88,10 @@ export class Game {
 		this._money = value;
 		this.$status.find('.status-money span').text(numberWithCommas(round(value)));
 		this.disableReactors();
+
+		if (this.money <= 0) {
+			this.lose('economic');
+		}
 	}
 
 	// How much money gained every interval

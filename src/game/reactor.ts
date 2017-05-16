@@ -86,7 +86,6 @@ export class Reactor {
 		this.game.$view.append(`
 			<div id="${this.id}" class="reactor">
 				<img src="images/reactors/${size}.png">
-				<div class="reactor-overlay"></div>
 			</div>
 		`);
 

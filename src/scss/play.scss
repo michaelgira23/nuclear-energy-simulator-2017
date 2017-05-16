@@ -24,7 +24,9 @@ button {
 }
 
 .tutorial-box {
-	min-width: 15rem;
+	p:last-child {
+		margin-bottom: 0;
+	}
 }
 
 .tutorial-target {
@@ -200,15 +202,6 @@ button {
 
 				img {
 					width: 100%;
-				}
-
-				.reactor-overlay {
-					position: absolute;
-					top: 0;
-					right: 0;
-					bottom: 0;
-					left: 0;
-					pointer-events: none;
 				}
 			}
 		}

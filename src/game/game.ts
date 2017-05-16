@@ -18,7 +18,7 @@ export class Game {
 	funFacts = shuffleFacts();
 	funFactsIndex = 0;
 	// How many seconds before checking if should add new fun fact
-	funFactsTime = 20;
+	funFactsTime = 30;
 	funFactsInterval: any;
 
 	$game: any;
@@ -38,6 +38,8 @@ export class Game {
 
 	// Array of cities on the view
 	cities: City[] = [];
+	// What the favor is for each city
+	citiesFavor: { [id: string]: number } = {};
 
 	// How many milliseconds should pass each game trick
 	// 60 game ticks = 1 hour
@@ -52,10 +54,20 @@ export class Game {
 	// Whether or not user has already recieved win prompt
 	alreadyWon = false;
 
+	private _averageFavor = 0;
 	private _totalMwh = 0;
 	private _money: number;
 	private _baseMoneyGained: number;
 	private _time: number;
+
+	// Average favor of all the cities
+	get averageFavor() {
+		return this._totalMwh;
+	}
+	set averageFavor(value) {
+		this._totalMwh = value;
+		this.$status.find('.status-favor span').text(round(value));
+	}
 
 	// MWh total from all reactors
 	get totalMwh() {
@@ -231,10 +243,10 @@ export class Game {
 		// 	}
 		// });
 
-		// Add citie hitboxes onto the game
-		// for (const city of cities) {
-		// 	this.addCity(city.topLeft, city.dimensions);
-		// }
+		// Add city hitboxes onto the game
+		for (const city of Object.keys(cities)) {
+			this.addCity(city, cities[city].topLeft, cities[city].dimensions);
+		}
 
 		/* tslint:disable:max-line-length */
 		// Tutorial after stuff is initialized
@@ -418,15 +430,59 @@ export class Game {
 	 */
 
 	addReactor(size: ReactorSize, position: Point) {
-		this.reactors.push(new Reactor(this, size, position));
+		const reactor = new Reactor(this, size, position);
+		this.reactors.push(reactor);
+
+		const distancesToCities = [];
+
+		for (const city of this.cities) {
+			distancesToCities.push(city.getDistanceToReactor(reactor.id));
+		}
+
+		const maxDistance = Math.max(...distancesToCities);
+
+		for (const city of this.cities) {
+			const distance = city.getDistanceToReactor(reactor.id);
+			const distanceRatio = distance / maxDistance;
+
+			const maxPercentageDecrease = {
+				small: 10,
+				medium: 15,
+				large: 20
+			};
+
+			city.favor -= maxPercentageDecrease[size] * (1 - distanceRatio);
+		}
 	}
 
 	/**
 	 * Add a city onto the game
 	 */
 
-	addCity(topLeft: Point, dimensions: Point) {
-		this.cities.push(new City(this, topLeft, dimensions));
+	addCity(name: string, topLeft: Point, dimensions: Point) {
+		this.cities.push(new City(this, name, topLeft, dimensions));
+	}
+
+	/**
+	 * Set favor percentage of a city
+	 */
+
+	changeCityFavor(id: string, favor: number) {
+		this.citiesFavor[id] = favor;
+		const citiesKeys = Object.keys(this.citiesFavor);
+		this.averageFavor = citiesKeys.reduce((acc, val) => {
+			return acc + this.citiesFavor[val];
+		}, 0) / citiesKeys.length;
+	}
+
+	/**
+	 * Increase all cities' support for nucearl energy by this much
+	 */
+
+	increaseCitiesFavor(favor: number) {
+		for (const city of this.cities) {
+			city.favor += favor;
+		}
 	}
 
 	/**
@@ -686,6 +742,53 @@ export class Game {
 		} else {
 			this.$view.addClass('overlay');
 		}
+	}
+
+	/**
+	 * Gets the coordinates of where the map image should be
+	 */
+
+	getBackgroundDimensions() {
+		// Width / height
+		const imageRatio = 4 / 3;
+
+		const viewWidth = this.$view.width();
+		const viewHeight = this.$view.height();
+
+		// Assume that width is fixed, height is infinite
+		const unlimitedHeight = viewWidth / imageRatio;
+
+		// Assume that height is fixed, width is infinite
+		const unlimitedWidth = viewHeight * imageRatio;
+
+		this.$view.append('<div class="background-visualizer"></div>');
+		const $border = $('.background-visualizer');
+
+		let backgroundWidth;
+		let backgroundHeight;
+
+		if (unlimitedHeight <= viewHeight) {
+			backgroundWidth = viewWidth;
+			backgroundHeight = unlimitedHeight;
+			$border.width(viewWidth).height(unlimitedHeight);
+		}
+
+		if (unlimitedWidth <= viewWidth) {
+			backgroundWidth = unlimitedWidth;
+			backgroundHeight = viewHeight;
+			$border.width(unlimitedWidth).height(viewHeight);
+		}
+
+		const tether = new Tether({
+			element: $border,
+			target: this.$view,
+			attachment: 'center center',
+			targetAttachment: 'center center'
+		});
+
+		const dimensions = $border.get(0).getBoundingClientRect();
+		$border.remove();
+		return dimensions;
 	}
 
 	/**

@@ -231,6 +231,12 @@ export class Reactor {
 				this.game.lose('political');
 			}
 		}
+
+		// Increase the support in all cities according to percentage that the nuclear reactor generates
+		const fractionOfPower = this.mw / this.game.totalEnergyUsage;
+
+		// Increase all reactors by this percentage
+		this.game.increaseCitiesFavor(fractionOfPower);
 	}
 }
 
@@ -264,17 +270,17 @@ export const reactorSpecs: { [key: string]: ReactorSpec } = {
 	small: {
 		cost: 17000,
 		mwCapacity: 500,
-		uraniumCapacity: 0.1
+		uraniumCapacity: 0.1 * 2
 	},
 	medium: {
 		cost: 27200,
 		mwCapacity: 800,
-		uraniumCapacity: round(0.1 * (18 / 11))
+		uraniumCapacity: round(0.1 * 2 * (18 / 11))
 	},
 	large: {
 		cost: 51000,
 		mwCapacity: 1500,
-		uraniumCapacity: round(0.1 * 3)
+		uraniumCapacity: round(0.1 * 2 * 3)
 	}
 };
 

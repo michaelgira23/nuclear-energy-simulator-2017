@@ -215,9 +215,9 @@ export class Game {
 		// });
 
 		// Add citie hitboxes onto the game
-		for (const city of cities) {
-			this.addCity(city.topLeft, city.dimensions);
-		}
+		// for (const city of cities) {
+		// 	this.addCity(city.topLeft, city.dimensions);
+		// }
 
 		/* tslint:disable:max-line-length */
 		// Tutorial after stuff is initialized

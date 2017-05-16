@@ -1,5 +1,6 @@
 import * as interact from 'interactjs';
 import uuid from 'uuid/v4';
+import { cities, City } from './city';
 import { Reactor, ReactorSize, reactorSpecs } from './reactor';
 import { capitalize, includes, leadingZeros, numberSign, numberWithCommas, round } from './utils';
 
@@ -26,6 +27,9 @@ export class Game {
 	reactors: Reactor[] = [];
 	// MWh each reactor is producing
 	reactorsMwhProduction: { [id: string]: number } = {};
+
+	// Array of cities on the view
+	cities: City[] = [];
 
 	// How many milliseconds should pass each game trick
 	// 60 game ticks = 1 hour
@@ -210,6 +214,11 @@ export class Game {
 		// 	}
 		// });
 
+		// Add citie hitboxes onto the game
+		for (const city of cities) {
+			this.addCity(city.topLeft, city.dimensions);
+		}
+
 		/* tslint:disable:max-line-length */
 		// Tutorial after stuff is initialized
 		this.tutorial = [
@@ -384,6 +393,14 @@ export class Game {
 
 	addReactor(size: ReactorSize, position: Point) {
 		this.reactors.push(new Reactor(this, size, position));
+	}
+
+	/**
+	 * Add a city onto the game
+	 */
+
+	addCity(topLeft: Point, dimensions: Point) {
+		this.cities.push(new City(this, topLeft, dimensions));
 	}
 
 	/**

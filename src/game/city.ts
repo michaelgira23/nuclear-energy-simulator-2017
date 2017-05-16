@@ -5,8 +5,8 @@ export const cities: CityInterface[] = [
 	// North City
 	{
 		topLeft: {
-			x: 44,
-			y: 18
+			x: 0,
+			y: 0
 		},
 		dimensions: {
 			x: 9,
@@ -45,6 +45,17 @@ export const cities: CityInterface[] = [
 			x: 12,
 			y: 19
 		}
+	},
+	// TEst City
+	{
+		topLeft: {
+			x: 100,
+			y: 100
+		},
+		dimensions: {
+			x: 12,
+			y: 19
+		}
 	}
 ];
 
@@ -60,11 +71,14 @@ export class City {
 
 		this.$elem = this.game.$view.find(`.city#${this.id}`);
 
+		const bgDimensions = game.getBackgroundDimensions();
+		const viewDimensions = game.$view.get(0).getBoundingClientRect();
+
 		this.$elem.css({
-			left: `${topLeft.x}%`,
-			top: `${topLeft.y}%`,
-			width: `${dimensions.x}%`,
-			height: `${dimensions.y}%`
+			left: (bgDimensions.left - viewDimensions.left) + (bgDimensions.width * (topLeft.x / 100)),
+			top: (bgDimensions.top - viewDimensions.top) + (bgDimensions.height * (topLeft.y / 100)),
+			width: bgDimensions.width * (dimensions.x / 100),
+			height: bgDimensions.height * (dimensions.y / 100)
 		});
 	}
 

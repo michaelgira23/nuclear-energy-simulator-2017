@@ -231,10 +231,10 @@ export class Game {
 		// 	}
 		// });
 
-		// Add citie hitboxes onto the game
-		// for (const city of cities) {
-		// 	this.addCity(city.topLeft, city.dimensions);
-		// }
+		// Add city hitboxes onto the game
+		for (const city of cities) {
+			this.addCity(city.topLeft, city.dimensions);
+		}
 
 		/* tslint:disable:max-line-length */
 		// Tutorial after stuff is initialized
@@ -686,6 +686,55 @@ export class Game {
 		} else {
 			this.$view.addClass('overlay');
 		}
+	}
+
+	/**
+	 * Gets the coordinates of where the map image should be
+	 */
+
+	getBackgroundDimensions() {
+		// Width / height
+		const imageRatio = 4 / 3;
+
+		const viewWidth = this.$view.width();
+		const viewHeight = this.$view.height();
+
+		// Assume that width is fixed, height is infinite
+		const unlimitedHeight = viewWidth / imageRatio;
+
+		// Assume that height is fixed, width is infinite
+		const unlimitedWidth = viewHeight * imageRatio;
+
+		this.$view.append('<div class="background-visualizer" style="background: rgba(0, 0, 0, 0.05)"></div>');
+		const $border = $('.background-visualizer');
+
+		let backgroundWidth;
+		let backgroundHeight;
+
+		if (unlimitedHeight <= viewHeight) {
+			backgroundWidth = viewWidth;
+			backgroundHeight = unlimitedHeight;
+			// console.log('Width:', viewWidth, 'Height:', unlimitedHeight);
+			$border.width(viewWidth).height(unlimitedHeight);
+		}
+
+		if (unlimitedWidth <= viewWidth) {
+			backgroundWidth = unlimitedWidth;
+			backgroundHeight = viewHeight;
+			// console.log('Width:', unlimitedWidth, 'Height:', viewHeight);
+			$border.width(unlimitedWidth).height(viewHeight);
+		}
+
+		const tether = new Tether({
+			element: $border,
+			target: this.$view,
+			attachment: 'center center',
+			targetAttachment: 'center center'
+		});
+
+		const dimensions = $border.get(0).getBoundingClientRect();
+		// $border.remove();
+		return dimensions;
 	}
 
 	/**

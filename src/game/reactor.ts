@@ -116,21 +116,23 @@ export class Reactor {
 
 	// Buy a certain amount of uranium (in pounds)
 	buyUranium(pounds: number) {
-		const cost = (pounds * uranium.cost.perPound) + uranium.cost.extra;
-
-		// If the user can't afford this amount of uranium
-		if (this.game.money < cost) {
-			return;
-		}
-
 		// Check if uranium is already enriched
 		if (this.uraniumEnrichment > 0) {
 			return;
 		}
 
+		let cost = (pounds * uranium.cost.perPound) + uranium.cost.extra;
+
+		// If the user can't afford this amount of uranium
+		if (this.game.money < cost) {
+			cost = this.game.money;
+		}
+
 		// Check if reactor has the capacity for this
 		if ((this.uraniumSupply + pounds) > this.specs.uraniumCapacity) {
-			return;
+			// Just fill up remaining
+			pounds = this.specs.uraniumCapacity - this.uraniumSupply;
+			cost = (pounds * uranium.cost.perPound) + uranium.cost.extra;
 		}
 
 		this.game.money -= cost;

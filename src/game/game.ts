@@ -1,7 +1,7 @@
 import * as interact from 'interactjs';
 import uuid from 'uuid/v4';
 import { cities, City } from './city';
-import { Reactor, ReactorSize, reactorSpecs } from './reactor';
+import { Reactor, ReactorSize, reactorSpecs, uranium } from './reactor';
 import { capitalize, includes, leadingZeros, numberSign, numberWithCommas, round } from './utils';
 
 declare const $: any;
@@ -33,9 +33,9 @@ export class Game {
 
 	// How many milliseconds should pass each game trick
 	// 60 game ticks = 1 hour
-	gameTick = 100;
+	gameTick = 1000;
 	// How often player gains money and stuff (in game ticks)
-	gameInterval = 10;
+	gameInterval = 3;
 	// The setInterval for making the game do stuff
 	gameTickInterval: any;
 
@@ -46,7 +46,7 @@ export class Game {
 
 	private _totalMwh = 0;
 	private _money: number;
-	private _moneyGained: number;
+	private _baseMoneyGained: number;
 	private _time: number;
 
 	// MWh total from all reactors
@@ -57,6 +57,10 @@ export class Game {
 		this._totalMwh = value;
 		this.$status.find('.status-generated span').text(round(value));
 		this.$status.find('.status-percentage span').text(round(this.nuclearPercentage));
+
+		// Also update money gained
+		const gained = this.moneyGained;
+		this.$status.find('.status-moneygained span').text(`${numberSign(gained)}$${numberWithCommas(round(gained))}`);
 
 		if (this.nuclearPercentage >= 100 && !this.alreadyWon) {
 			this.win();
@@ -74,17 +78,18 @@ export class Game {
 	}
 	set money(value: number) {
 		this._money = value;
-		this.$status.find('.status-money span').text(numberWithCommas(value));
+		this.$status.find('.status-money span').text(numberWithCommas(round(value)));
 		this.disableReactors();
 	}
 
 	// How much money gained every interval
 	get moneyGained() {
-		return this._moneyGained;
+		return this._baseMoneyGained + (this.totalMwh * uranium.nuclearSave);
 	}
-	set moneyGained(value: number) {
-		this._moneyGained = value;
-		this.$status.find('.status-moneygained span').text(`${numberSign(value)}$${numberWithCommas(value)}`);
+	set baseMoneyGained(value: number) {
+		this._baseMoneyGained = value;
+		const gained = this.moneyGained;
+		this.$status.find('.status-moneygained span').text(`${numberSign(gained)}$${numberWithCommas(round(gained))}`);
 	}
 
 	// How many game ticks have passed
@@ -120,8 +125,8 @@ export class Game {
 		};
 
 		// this.money = 0;
-		this.money = 2000000;
-		this.moneyGained = 1000;
+		this.money = 17500;
+		this.baseMoneyGained = 800;
 
 		this.time = 0;
 

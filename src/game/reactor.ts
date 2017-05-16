@@ -1,7 +1,7 @@
 import uuid from 'uuid/v4';
 import { Point } from './game';
 import { ReactorDetails } from './reactor-details';
-import { capitalize } from './utils';
+import { capitalize, round } from './utils';
 
 declare const $: any;
 
@@ -210,12 +210,24 @@ export class Reactor {
 
 		this.uraniumSupply -= useUranium;
 		this.mw = produceMwh;
+
+		this.detailsPopup.updateData();
 	}
 
 	onInterval() {
 		if (this.enriching) {
-			// Increase the uranium enrichment by 1 percent every interval
-			if (++this.uraniumEnrichment > uranium.thresholds.weaponsGrade) {
+			// Increase the uranium enrichment every interval
+			if (this.uraniumEnrichment < 5) {
+				this.uraniumEnrichment++;
+			} else if (this.uraniumEnrichment < 10) {
+				this.uraniumEnrichment += 5;
+			} else if (this.uraniumEnrichment < 30) {
+				this.uraniumEnrichment += 10;
+			} else {
+				this.uraniumEnrichment += 20;
+			}
+
+			if (this.uraniumEnrichment >= uranium.thresholds.weaponsGrade) {
 				this.game.lose('political');
 			}
 		}
@@ -243,24 +255,26 @@ export const uranium = {
 		weaponsGrade: 90
 	},
 	// How many megawatt are produced from one pound of uranium
-	mwPerPound: 10886
+	mwPerPound: 10886,
+	// How many dollars saved by switching to Geico
+	nuclearSave: 0.2008 // Dollars per MWh saved
 };
 
 export const reactorSpecs: { [key: string]: ReactorSpec } = {
 	small: {
 		cost: 17000,
 		mwCapacity: 500,
-		uraniumCapacity: 1.1
+		uraniumCapacity: 0.1
 	},
 	medium: {
 		cost: 27200,
 		mwCapacity: 800,
-		uraniumCapacity: 1.8
+		uraniumCapacity: round(0.1 * (18 / 11))
 	},
 	large: {
 		cost: 51000,
 		mwCapacity: 1500,
-		uraniumCapacity: 3.3
+		uraniumCapacity: 0.1 * 3
 	}
 };
 

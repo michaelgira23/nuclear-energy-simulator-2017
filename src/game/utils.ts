@@ -19,7 +19,9 @@ export function leadingZeros(num: number, places = 2) {
 
 // Return number with commas every thousands place
 export function numberWithCommas(num: number) {
-	return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+	const parts = num.toString().split('.');
+	parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+	return parts.join('.');
 }
 
 // Get sign for number. ('+', '-', or '' if 0)

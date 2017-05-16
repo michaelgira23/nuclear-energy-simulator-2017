@@ -26,6 +26,16 @@ export const funFacts: Fact[] = [
 		fact: 'The United Nations (UN) was formed as a result of World War II and established the UN Atomic Energy Commission “to deal with the problems raised by the discovery of atomic energy” (“Atomic Energy”). Subsequently, in 1957, the International Atomic Energy Agency (IAEA) was created—an independent organization that works closely with the United Nations monitoring issues concerning nuclear technology (“International Atomic”). ',
 		sources: ['United Nations', 'Gale Global Issues in Context'],
 		links: ['("Atomic Energy")', '("International Atomic")']
+	},
+	{
+		fact: 'The United States is the largest producer of nuclear power with 99 nuclear reactors already built and four reactors currently under construction.',
+		sources: ['World Nuclear Association'],
+		links: ['("Nuclear Power in the USA")']
+	},
+	{
+		fact: 'With 75% of its energy generated from nuclear, France is considered "ahead of the world." This is due to the policies France has created to minimize imports of fuel and increase energy security.',
+		sources: ['Business Insider', 'World Nuclear Association'],
+		links: ['(Jacobs)', '("Nuclear Power in France")']
 	}
 ];
 /* tslint:enable:max-line-length */

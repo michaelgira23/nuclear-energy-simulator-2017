@@ -16,7 +16,7 @@ export class Game {
 	funFacts = shuffleFacts();
 	funFactsIndex = 0;
 	// How many seconds before checking if should add new fun fact
-	funFactsTime = 5;
+	funFactsTime = 20;
 	funFactsInterval: any;
 
 	$game: any;
@@ -507,8 +507,10 @@ export class Game {
 		const fact = this.funFacts[this.funFactsIndex % this.funFacts.length];
 
 		const sourceButtons = [];
-		for (let i = 0; i < fact.sources.length; i++) {
-			sourceButtons.push(`<a href="${fact.links[i]}" target="_blank" class="alert-link">${fact.sources[i]}</a>`);
+		// for (let i = 0; i < fact.sources.length; i++) {
+		for (const source of fact.sources) {
+			// sourceButtons.push(`<a href="${fact.links[i]}" target="_blank" class="alert-link">${fact.sources[i]}</a>`);
+			sourceButtons.push(`<a href="/bibliography" target="_blank" class="alert-link">${source}</a>`);
 		}
 
 		this.$view.find('.fun-facts').append(`

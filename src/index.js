@@ -66,6 +66,10 @@ app.get('/essay', (req, res) => {
 	res.render('pages/essay');
 });
 
+app.get('/bibliography', (req, res) => {
+	res.render('pages/bibliography');
+});
+
 app.get('/layout', (req, res) => {
 	res.render('pages/layout');
 })

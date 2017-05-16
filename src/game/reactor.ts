@@ -274,7 +274,7 @@ export const reactorSpecs: { [key: string]: ReactorSpec } = {
 	large: {
 		cost: 51000,
 		mwCapacity: 1500,
-		uraniumCapacity: 0.1 * 3
+		uraniumCapacity: round(0.1 * 3)
 	}
 };
 

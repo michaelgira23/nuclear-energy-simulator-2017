@@ -1,6 +1,7 @@
 import * as interact from 'interactjs';
 import uuid from 'uuid/v4';
 import { cities, City } from './city';
+import { shuffleFacts } from './fun-facts';
 import { Reactor, ReactorSize, reactorSpecs, uranium } from './reactor';
 import { capitalize, includes, leadingZeros, numberSign, numberWithCommas, round } from './utils';
 
@@ -12,6 +13,11 @@ export class Game {
 	name: { first: string, last: string };
 
 	tutorial: Tutorial[] = [];
+	funFacts = shuffleFacts();
+	funFactsIndex = 0;
+	// How many seconds before checking if should add new fun fact
+	funFactsTime = 5;
+	funFactsInterval: any;
 
 	$game: any;
 	$buy: any;
@@ -139,7 +145,7 @@ export class Game {
 					<h5 class="reactor-name">${capitalize(size)} Reactor</h5>
 					<img class="reactor-image" src="images/reactors//${size}.png">
 					<p>Cost <strong>$${numberWithCommas(reactor.cost)}</strong></p>
-					<p>Generate up to <strong>${reactor.mwCapacity} MW</strong></p>
+					<p>Up to <strong>+${reactor.mwCapacity} MWh</strong></p>
 				</div>
 			`);
 		}
@@ -379,6 +385,10 @@ export class Game {
 				this.reactors.forEach(reactor => reactor.onInterval());
 			}
 		}, this.gameTick);
+
+		this.funFactsInterval = setInterval(() => {
+			this.showFact();
+		}, this.funFactsTime * 1000);
 	}
 
 	/**
@@ -390,6 +400,10 @@ export class Game {
 			clearInterval(this.gameTickInterval);
 		}
 		this.gameTickInterval = null;
+		if (this.funFactsInterval) {
+			clearInterval(this.funFactsInterval);
+		}
+		this.funFactsInterval = null;
 	}
 
 	/**
@@ -476,6 +490,39 @@ export class Game {
 	lose(reason: Reason) {
 		/** @todo Do some back-end logic to log game */
 		window.location.href = `/lose?reason=${reason}`;
+	}
+
+	/**
+	 * Show a fun fact that's fun for the whole family
+	 */
+
+	showFact() {
+		const $funFacts = this.$view.find('.fun-facts');
+
+		// Don't add another fact if there's still one on the screen
+		if ($funFacts.children().length > 0) {
+			return;
+		}
+
+		const fact = this.funFacts[this.funFactsIndex % this.funFacts.length];
+
+		const sourceButtons = [];
+		for (let i = 0; i < fact.sources.length; i++) {
+			sourceButtons.push(`<a href="${fact.links[i]}" target="_blank" class="alert-link">${fact.sources[i]}</a>`);
+		}
+
+		this.$view.find('.fun-facts').append(`
+			<div class="alert alert-info alert-dismissible fade show" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<strong>Did you know?</strong>
+				<p>${fact.fact}</p>
+				<p>Sources: ${sourceButtons.join(' ')}</p>
+			</div>
+		`);
+
+		this.funFactsIndex++;
 	}
 
 	/**

@@ -183,7 +183,7 @@ button {
 			-webkit-user-select: none;  /* Chrome all / Safari all */
 			-moz-user-select: none;     /* Firefox all */
 			-ms-user-select: none;      /* IE 10+ */
-			user-select: none;          /* Likely future */  
+			user-select: none;          /* Likely future */
 
 			&.overlay:before {
 				content: ' ';
@@ -196,6 +196,14 @@ button {
 				z-index: 10;
 
 				background: rgba(0, 0, 0, 0.8);
+			}
+
+			.fun-facts {
+				width: 20rem;
+
+				position: absolute;
+				top: 2rem;
+				right: 2rem;
 			}
 
 			.reactor {

@@ -5,55 +5,44 @@ export const cities: CityInterface[] = [
 	// North City
 	{
 		topLeft: {
-			x: 0,
-			y: 0
+			x: 41,
+			y: 19
 		},
 		dimensions: {
-			x: 9,
-			y: 12
+			x: 13,
+			y: 10
 		}
 	},
 	// East City
 	{
 		topLeft: {
-			x: 58,
+			x: 65,
 			y: 30
 		},
 		dimensions: {
-			x: 9,
+			x: 12,
 			y: 12
 		}
 	},
 	// South City
 	{
 		topLeft: {
-			x: 47,
+			x: 45,
 			y: 74
 		},
 		dimensions: {
-			x: 9,
+			x: 14,
 			y: 12
 		}
 	},
 	// West City
 	{
 		topLeft: {
-			x: 26,
+			x: 10,
 			y: 37
 		},
 		dimensions: {
-			x: 12,
-			y: 19
-		}
-	},
-	// TEst City
-	{
-		topLeft: {
-			x: 100,
-			y: 100
-		},
-		dimensions: {
-			x: 12,
+			x: 20,
 			y: 19
 		}
 	}

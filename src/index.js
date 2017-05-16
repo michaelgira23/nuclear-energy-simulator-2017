@@ -66,4 +66,8 @@ app.get('/essay', (req, res) => {
 	res.render('pages/essay');
 });
 
+app.get('/layout', (req, res) => {
+	res.render('pages/layout');
+})
+
 app.listen(port, () => console.log(`Server listening on *:${port}`));

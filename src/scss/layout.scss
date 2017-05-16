@@ -1,0 +1,31 @@
+html, body {
+	height: 100%;
+}
+
+#game {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+
+	.game-content {
+		flex-grow: 1;
+		flex-shrink: 1;
+
+		display: flex;
+
+		.game-buy {
+			flex-grow: 0;
+			flex-shrink: 1;
+		}
+
+		.game-view {
+			flex-grow: 1;
+			flex-shrink: 1;
+		}
+	}
+
+	.game-status {
+		flex-grow: 0;
+		flex-shrink: 1;
+	}
+}

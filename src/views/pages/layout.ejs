@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<%- include('../partials/header', { title: 'Nuclear Energy Simulator 2017 - Play' }) %>
-		<link rel="stylesheet" href="css/play.css">
+		<%- include('../partials/header', { title: 'Nuclear Energy Simulator 2017 - Layout Debug' }) %>
+		<link rel="stylesheet" href="css/layout.css">
 	</head>
 	<body>
 		<div id="game">
-			<div class="game-overlay">
+			<!-- <div class="game-overlay">
 				<div class="overlay-prompt tutorial">
 					<h1>Would you like to take the tutorial?</h1>
 					<div class="overlay-response">
@@ -21,19 +21,24 @@
 						<button class="win-done btn btn-block btn-outline-primary">My Work Here Is Done</button>
 					</div>
 				</div>
-			</div>
-			<div class="game-content">
-				<div class="game-buy">
-					<h3>Build a Reactor</h3>
+			</div> -->
+			<div class="game-content" style="background: purple">
+				<div class="game-buy" style="background: blue">
+					Buy
+					<!-- <h3>Build a Reactor</h3>
 					<p>Simply drag and drop onto the map</p>
-					<div class="buy-reactors"></div>
+					<div class="buy-reactors"></div> -->
 				</div>
-				<div class="game-view">
-					<!-- <div style="width: 100px; height: 100px; background: red; position: absolute">test</div> -->
+				<div class="game-view" style="background: yellow">
+					View
+					<!-- <div class="background-container"> --
+						<img class="background" src="images/game-map.png">
+					<!-- </div> -->
 				</div>
 			</div>
-			<div class="game-status">
-				<div class="status-group">
+			<div class="game-status" style="background: red">
+				Status Bar
+				<!-- <div class="status-group">
 					<p class="status-item status-time">Time <span>12:00</span></p>
 				</div>
 				<div class="status-group">
@@ -43,7 +48,7 @@
 				<div class="status-group">
 					<p class="status-item status-generated"><strong><span>0</span></strong> <small>Megawatts per hour</small></p>
 					<p class="status-item status-percentage"><strong><span>0</span>%</strong> <small>Converted to Nuclear</small></p>
-				</div>
+				</div> -->
 			</div>
 		</div>
 

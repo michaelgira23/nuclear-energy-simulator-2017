@@ -23,7 +23,7 @@ export const funFacts: Fact[] = [
 		links: ['("History of Nuclear")']
 	},
 	{
-		fact: 'The United Nations (UN) was formed as a result of World War II and established the UN Atomic Energy Commission “to deal with the problems raised by the discovery of atomic energy” (“Atomic Energy”). Subsequently, in 1957, the International Atomic Energy Agency (IAEA) was created—an independent organization that works closely with the United Nations monitoring issues concerning nuclear technology (“International Atomic”). ',
+		fact: 'The United Nations (UN) was formed as a result of World War II and established the UN Atomic Energy Commission "to deal with the problems raised by the discovery of atomic energy." Subsequently, in 1957, the International Atomic Energy Agency (IAEA) was created—an independent organization that works closely with the United Nations monitoring issues concerning nuclear technology.',
 		sources: ['United Nations', 'Gale Global Issues in Context'],
 		links: ['("Atomic Energy")', '("International Atomic")']
 	},

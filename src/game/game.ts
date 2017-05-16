@@ -13,6 +13,8 @@ export class Game {
 	name: { first: string, last: string };
 
 	tutorial: Tutorial[] = [];
+	inTutorial = false;
+
 	funFacts = shuffleFacts();
 	funFactsIndex = 0;
 	// How many seconds before checking if should add new fun fact
@@ -266,7 +268,8 @@ export class Game {
 			{
 				section: 'status',
 				target: this.$status.find('.status-moneygained'),
-				text: 'This is how much money you gain per (in game) hour. <strong>You get more money depending on how much the public likes nuclear energy.</strong> The public likes nuclear the closer/longer they live by a nuclear reactor. <strong>You also gain more money if oil prices increase.</strong>',
+				// text: 'This is how much money you gain per (in game) hour. <strong>You get more money depending on how much the public likes nuclear energy.</strong> The public likes nuclear the closer/longer they live by a nuclear reactor. <strong>You also gain more money if oil prices increase.</strong>',
+				text: 'This is how much money you gain per (in game) hour. <strong>The more electricity you produce from nuclear, the more money you get.</strong>',
 				direction: 'top'
 			},
 			{
@@ -327,7 +330,7 @@ export class Game {
 				direction: 'left'
 			},
 			{
-				section: 'all',
+				section: 'none',
 				target: this.$game,
 				text: 'You\'re all set! <strong>Keep building nuclear reactors until you convert your entire country to nuclear.</strong> Good luck!',
 				direction: 'center'
@@ -497,6 +500,10 @@ export class Game {
 	 */
 
 	showFact() {
+		if (this.inTutorial) {
+			return;
+		}
+
 		const $funFacts = this.$view.find('.fun-facts');
 
 		// Don't add another fact if there's still one on the screen
@@ -532,6 +539,7 @@ export class Game {
 	 */
 
 	startTutorial(i = 0) {
+		this.inTutorial = true;
 		this.tutorialTextBox(this.tutorial[i], i + 1, next => {
 			if (next) {
 				i++;
@@ -541,6 +549,7 @@ export class Game {
 			if (this.tutorial[i]) {
 				this.startTutorial(i);
 			} else {
+				this.inTutorial = false;
 				this.start();
 			}
 		});
@@ -553,7 +562,6 @@ export class Game {
 
 		let $target;
 		if (typeof tutorial.target === 'function') {
-			console.log('target is function', tutorial.target())
 			$target = $(tutorial.target())
 		} else {
 			$target = $(tutorial.target);

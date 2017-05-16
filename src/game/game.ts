@@ -38,6 +38,8 @@ export class Game {
 
 	// Array of cities on the view
 	cities: City[] = [];
+	// What the favor is for each city
+	citiesFavor: { [id: string]: number } = {};
 
 	// How many milliseconds should pass each game trick
 	// 60 game ticks = 1 hour
@@ -52,10 +54,20 @@ export class Game {
 	// Whether or not user has already recieved win prompt
 	alreadyWon = false;
 
+	private _averageFavor = 0;
 	private _totalMwh = 0;
 	private _money: number;
 	private _baseMoneyGained: number;
 	private _time: number;
+
+	// Average favor of all the cities
+	get averageFavor() {
+		return this._totalMwh;
+	}
+	set averageFavor(value) {
+		this._totalMwh = value;
+		this.$status.find('.status-favor span').text(round(value));
+	}
 
 	// MWh total from all reactors
 	get totalMwh() {
@@ -449,6 +461,18 @@ export class Game {
 
 	addCity(name: string, topLeft: Point, dimensions: Point) {
 		this.cities.push(new City(this, name, topLeft, dimensions));
+	}
+
+	/**
+	 * Set favor percentage of a city
+	 */
+
+	changeCityFavor(id: string, favor: number) {
+		this.citiesFavor[id] = favor;
+		const citiesKeys = Object.keys(this.citiesFavor);
+		this.averageFavor = citiesKeys.reduce((acc, val) => {
+			return acc + this.citiesFavor[val];
+		}, 0) / citiesKeys.length;
 	}
 
 	/**

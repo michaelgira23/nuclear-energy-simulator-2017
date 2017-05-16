@@ -67,6 +67,7 @@ export class City {
 	set favor(value) {
 		this._favor = value;
 		this.updateDetails();
+		this.game.changeCityFavor(this.id, this.favor);
 
 		if (value <= 0) {
 			this.game.lose('social');
@@ -84,6 +85,7 @@ export class City {
 		this.favor = round((Math.random() * 10) + 10, 0);
 		console.log(this.favor);
 		this.favor = 20;
+		this.game.changeCityFavor(this.id, this.favor);
 
 		const bgDimensions = game.getBackgroundDimensions();
 		const viewDimensions = game.$view.get(0).getBoundingClientRect();

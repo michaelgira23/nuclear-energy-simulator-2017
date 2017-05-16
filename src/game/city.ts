@@ -65,7 +65,11 @@ export class City {
 		return this._favor;
 	}
 	set favor(value) {
-		this._favor = value;
+		if (value < 100) {
+			this._favor = value;
+		} else {
+			this._favor = 100;
+		}
 		this.updateDetails();
 		this.game.changeCityFavor(this.id, this.favor);
 
@@ -100,7 +104,7 @@ export class City {
 		this.$elem.popover({
 			content: `
 				<div id="city-details-${this.id}" class="city-details">
-					<h6><strong><span class="city-details-favor"></span>% of the population want nuclear energy</strong></h6>
+					<h6><strong><span class="city-details-favor"></span>%</strong> of the population support the use nuclear energy</h6>
 					<div class="city-details-favor-progress progress">
 						<div class="progress-bar"></div>
 					</div>

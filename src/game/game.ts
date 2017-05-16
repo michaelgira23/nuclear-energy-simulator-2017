@@ -18,7 +18,7 @@ export class Game {
 	funFacts = shuffleFacts();
 	funFactsIndex = 0;
 	// How many seconds before checking if should add new fun fact
-	funFactsTime = 20;
+	funFactsTime = 30;
 	funFactsInterval: any;
 
 	$game: any;
@@ -473,6 +473,16 @@ export class Game {
 		this.averageFavor = citiesKeys.reduce((acc, val) => {
 			return acc + this.citiesFavor[val];
 		}, 0) / citiesKeys.length;
+	}
+
+	/**
+	 * Increase all cities' support for nucearl energy by this much
+	 */
+
+	increaseCitiesFavor(favor: number) {
+		for (const city of this.cities) {
+			city.favor += favor;
+		}
 	}
 
 	/**

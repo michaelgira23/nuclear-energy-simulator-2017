@@ -19,6 +19,10 @@ button {
 	cursor: pointer;
 }
 
+.progress-bar {
+	transition: width 250ms ease-in-out;
+}
+
 .popover.bs-tether-element-attached-bottom.bs-tether-target-attached-top {
 	top: auto;
 }
@@ -208,6 +212,7 @@ button {
 				position: absolute;
 				top: 2rem;
 				right: 2rem;
+				z-index: 1;
 			}
 
 			.reactor {
@@ -288,9 +293,5 @@ button {
 .reactor-details {
 	.reactor-details-enriched-progress {
 		margin-bottom: 1rem;
-	}
-
-	.progress-bar {
-		transition: width 250ms ease-in-out;
 	}
 }

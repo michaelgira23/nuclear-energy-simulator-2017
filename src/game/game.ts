@@ -18,9 +18,13 @@ export class Game {
 
 	funFacts = shuffleFacts();
 	funFactsIndex = 0;
-	// How many seconds before checking if should add new fun fact
-	funFactsTime = 60;
-	funFactsInterval: any;
+	// After this many seconds of no clicking, show a fun fact to keep player engaged
+	funFactsShowAfterNoClick = 5;
+	// Don't bombard players with information. Wait at least this many seconds between facts
+	funFactsMinTime = 30;
+	funFactsTimestampSinceLastFact = 0;
+	funFactsTimeout: any;
+	funFactsProcrastinateTimeout: any;
 
 	$game: any;
 	$buy: any;
@@ -474,9 +478,42 @@ export class Game {
 			}
 		}, this.gameTick);
 
-		this.funFactsInterval = setInterval(() => {
-			this.showFact();
-		}, this.funFactsTime * 1000);
+		const funEventHandler = () => {
+			if (Date.now() - this.funFactsTimestampSinceLastFact < this.funFactsMinTime * 1000) {
+				if (this.funFactsProcrastinateTimeout) {
+					clearTimeout(this.funFactsProcrastinateTimeout);
+				}
+
+				this.funFactsProcrastinateTimeout = setTimeout(() => {
+					funEventHandler();
+				}, this.funFactsMinTime * 1000);
+				return;
+			}
+
+			if (this.funFactsTimeout) {
+				clearTimeout(this.funFactsTimeout);
+			}
+
+			this.funFactsTimestampSinceLastFact = Date.now();
+			this.funFactsTimeout = setTimeout(() => {
+				this.showFact();
+			}, this.funFactsShowAfterNoClick * 1000);
+		};
+
+		funEventHandler();
+		let isDown = false;
+		$(document)
+			.click(() => {
+				funEventHandler();
+			})
+			// Also activate if dragging
+			.mousedown(() => isDown = true)
+			.mouseup(() => isDown = false)
+			.mousemove(() => {
+				if (isDown) {
+					funEventHandler();
+				}
+			});
 	}
 
 	/**
@@ -488,10 +525,12 @@ export class Game {
 			clearInterval(this.gameTickInterval);
 		}
 		this.gameTickInterval = null;
-		if (this.funFactsInterval) {
-			clearInterval(this.funFactsInterval);
+
+		$(document).off('click');
+		if (this.funFactsTimeout) {
+			clearInterval(this.funFactsTimeout);
 		}
-		this.funFactsInterval = null;
+		this.funFactsTimeout = null;
 	}
 
 	/**
@@ -648,7 +687,7 @@ export class Game {
 		}
 
 		this.$view.find('.fun-facts').append(`
-			<div class="alert alert-info alert-dismissible fade show" role="alert">
+			<div class="fact alert alert-info alert-dismissible fade" role="alert">
 				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -657,6 +696,10 @@ export class Game {
 				<p>Sources: ${sourceButtons.join(', ')}</p>
 			</div>
 		`);
+
+		setTimeout(() => {
+			this.$view.find('.fact').addClass('show');
+		}, 150);
 
 		this.funFactsIndex++;
 	}

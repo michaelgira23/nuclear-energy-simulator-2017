@@ -8,7 +8,7 @@ declare const $: any;
 export class Reactor {
 
 	id: string = uuid();
-	position: Point; // X and Y of reactor (in percentages)
+	// position: Point; // X and Y of reactor (in percentages)
 	$elem: any;
 	specs: ReactorSpec;
 	detailsPopup: ReactorDetails;
@@ -85,10 +85,6 @@ export class Reactor {
 			this.specs = reactorSpecs.small;
 		}
 
-		// Add arbitrary offset I found to get the images closely aligned to where they were dropped
-		point.x -= 65;
-		point.y -= 73;
-
 		// Convert point to percentages
 		// this.position = this.game.pixelsToPercent(point);
 
@@ -101,10 +97,10 @@ export class Reactor {
 		this.$elem = $(`.reactor#${this.id}`);
 
 		this.$elem.css({
-			// left: `calc(${this.position.x}% - 4rem)`,
-			// top: `calc(${this.position.x}% - 4rem)`
-			left: point.x,
-			top: point.y
+			left: `calc(${point.x}px - 4rem)`,
+			top: `calc(${point.y}px - 4rem)`
+			// left: point.x,
+			// top: point.y
 		});
 
 		this.detailsPopup = new ReactorDetails(this);

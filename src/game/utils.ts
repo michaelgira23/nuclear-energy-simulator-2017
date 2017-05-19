@@ -1,8 +1,15 @@
-import { Point } from './game';
+import { Point, Rect } from './game';
 
 // Opposite of communismize
 export function capitalize(str: string) {
 	return str[0].toUpperCase() + str.substr(1);
+}
+
+// Get random integer between min and max (inclusive)
+export function getRandomIntInclusive(min: number, max: number) {
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 // Check if element within array
@@ -39,7 +46,7 @@ export function numberSign(num: number) {
 }
 
 // Accepts a rectangle like one from getBoundingClientRect (with `left`, `top`, `width`, and `height`) and determines if point is within it
-export function pointWithinRect(rect, point: Point) {
+export function pointWithinRect(rect: Rect, point: Point) {
 	// Check within X
 	return (rect.left <= point.x && point.x <= (rect.left + rect.width))
 		// Check within Y

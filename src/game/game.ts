@@ -172,15 +172,7 @@ export class Game {
 
 		// Make reactors in shop draggable
 		this.reactorsInteractable = interact('.buy-reactor:not(.buy-disabled)')
-			.draggable({
-				// snap: {
-				// 	targets: [
-				// 		interact.createSnapGrid({ x: 30, y: 30 })
-				// 	],
-				// 	range: Infinity,
-				// 	relativePoints: [{ x: 0, y: 0 }]
-				// }
-			})
+			.draggable({})
 			.on('dragstart', event => {
 				event.target.classList.add('dragging');
 				event.target.setAttribute('data-x', 0);
@@ -189,10 +181,9 @@ export class Game {
 				const dimensions = event.target.getBoundingClientRect();
 				event.target.setAttribute('data-mouse-offset-x', dimensions.left - event.clientX);
 				event.target.setAttribute('data-mouse-offset-y', dimensions.top - event.clientY);
-				event.target.setAttribute('data-original-x', dimensions.left);
-				event.target.setAttribute('data-original-y', dimensions.top);
 			})
 			.on('dragmove', event => {
+				const viewDimensions = this.$view.get(0).getBoundingClientRect();
 				let x = parseFloat(event.target.getAttribute('data-x'));
 				let y = parseFloat(event.target.getAttribute('data-y'));
 
@@ -204,43 +195,65 @@ export class Game {
 				event.target.setAttribute('data-x', x);
 				event.target.setAttribute('data-y', y);
 
+				const reactorDimensions = event.target.getBoundingClientRect();
+
+				// Get mouse x position
+				const dotX = event.clientX
+					// Subtract view x (so now view top left corner is 0, 0)
+					- viewDimensions.left
+					// Add coordinates mouse started dragging relative to reactor position
+					+ Number(event.target.getAttribute('data-mouse-offset-x'))
+					// Make it in the center of the div
+					+ (reactorDimensions.width / 2);
+
+				// Get mouse y position
+				const dotY = event.clientY
+					// Subtract view y (so now view top left corner is 0, 0)
+					- viewDimensions.top
+					// Add coordinates mouse started dragging relative to reactor position
+					+ Number(event.target.getAttribute('data-mouse-offset-y'))
+					// Make it in the center of the div
+					+ (reactorDimensions.height / 2);
+
 				// Only enable dropping if within background image
-				const backgroundDimensions = this.getBackgroundDimensions();
-				if (pointWithinRect(backgroundDimensions, { x, y })) {
+				if (pointWithinRect(this.getBackgroundDimensions(), { x: dotX, y: dotY })) {
 					event.target.classList.remove('dragging-disabled');
 				} else {
 					event.target.classList.add('dragging-disabled');
 				}
+
+				// Debug dot
+				// this.dot({ x: dotX, y: dotY });
 			})
 			.on('dragend', event => {
+				const bgDimensions = this.getBackgroundDimensions();
+				const viewDimensions = this.$view.get(0).getBoundingClientRect();
 				const reactorDimensions = event.target.getBoundingClientRect();
-				const buyDimensions = this.$buy.get(0).getBoundingClientRect();
 
 				// Get mouse x position
 				const x = event.clientX
+					// Subtract view x (so now view top left corner is 0, 0)
+					- viewDimensions.left
 					// Add coordinates mouse started dragging relative to reactor position
 					+ Number(event.target.getAttribute('data-mouse-offset-x'))
 					// Make it in the center of the div
-					// + (reactorDimensions.width / 2)
-					// Subtract width of buy div
-					- buyDimensions.width;
+					+ (reactorDimensions.width / 2);
 
 				// Get mouse y position
 				const y = event.clientY
+					// Subtract view y (so now view top left corner is 0, 0)
+					- viewDimensions.top
 					// Add coordinates mouse started dragging relative to reactor position
 					+ Number(event.target.getAttribute('data-mouse-offset-y'))
 					// Make it in the center of the div
-					// + (reactorDimensions.height / 2);
+					+ (reactorDimensions.height / 2);
 
 				// Get cost of reactor
 				const reactorSize = event.target.getAttribute('data-size');
 				const reactorCost = reactorSpecs[reactorSize].cost;
 
-				// Get dimensions of background
-				const backgroundDimensions = this.getBackgroundDimensions();
-
 				// Only add if player can afford it and the reactor is within the background dimensions
-				if (this.money >= reactorCost && pointWithinRect(backgroundDimensions, { x: event.clientX, y: event.clientY })) {
+				if (this.money >= reactorCost && pointWithinRect(bgDimensions, { x, y })) {
 					this.money -= reactorCost;
 					this.addReactor(reactorSize, { x, y });
 				}
@@ -248,17 +261,25 @@ export class Game {
 				event.target.classList.remove('dragging');
 				event.target.classList.remove('dragging-disabled');
 
-				this.$view.append('<div class="dot"></div>');
-				$('.dot').css({
-					'position': 'absolute',
-					'top': y,
-					'left': x,
-					'background': 'red',
-					'width': '10px',
-					'height': '10px',
-					'z-index': 10
-				});
+				this.disableReactors();
+
+				// Debug dot
+				// this.dot({ x, y }, 'purple');
 			});
+
+		// Debug border
+		// const bgDimensions = this.getBackgroundDimensions();
+		// this.$view.append(`<div id="background-border"></div>`);
+		// const border = this.$view.find('#background-border')
+		// 	.css({
+		// 		'position': 'absolute',
+		// 		'left': bgDimensions.left,
+		// 		'top': bgDimensions.top,
+		// 		'width': bgDimensions.width,
+		// 		'height': bgDimensions.height,
+		// 		'border': '1px solid red',
+		// 		'pointer-events': 'none'
+		// 	});
 
 		// Dismiss any popovers if player clicks outside them
 		// this.$view.click(event => {
@@ -431,26 +452,6 @@ export class Game {
 				this.start();
 			});
 		});
-
-		// Add debug border
-		const bgDimensions = this.getBackgroundDimensions();
-		this.$view.append(`<div id="background-border"></div>`);
-		// const border = this.$view.find('#background-border')
-		// 	.css({
-		// 		// 'left': bgDimensions.left,
-		// 		// 'top': bgDimensions.top,
-		// 		'width': bgDimensions.width,
-		// 		'height': bgDimensions.height,
-		// 		'border': '1px solid red',
-		// 		'pointer-events': 'none'
-		// 	});
-
-		// const tether = new Tether({
-		// 	element: border,
-		// 	target: this.$view,
-		// 	attachment: 'center center',
-		// 	targetAttachment: 'center center'
-		// });
 
 	}
 
@@ -815,7 +816,7 @@ export class Game {
 	 * Gets the coordinates of where the map image should be
 	 */
 
-	getBackgroundDimensions() {
+	getBackgroundDimensions(relativeToView = true) {
 		// Width / height
 		const imageRatio = 4 / 3;
 
@@ -853,9 +854,45 @@ export class Game {
 			targetAttachment: 'center center'
 		});
 
-		const dimensions = $border.get(0).getBoundingClientRect();
+		const rect = $border.get(0).getBoundingClientRect();
 		$border.remove();
+
+		const dimensions: Rect = {
+			width: rect.width,
+			height: rect.height,
+			top: rect.top,
+			right: rect.right,
+			bottom: rect.bottom,
+			left: rect.left
+		};
+
+		if (relativeToView) {
+			const viewDimensions = this.$view.get(0).getBoundingClientRect();
+			dimensions.left -= viewDimensions.left;
+			dimensions.right -= viewDimensions.left;
+			dimensions.top -= viewDimensions.top;
+			dimensions.bottom -= viewDimensions.top;
+		}
+
 		return dimensions;
+	}
+
+	/**
+	 * Puts a red dot on the game view (for debugging only!)
+	 */
+
+	dot(position: Point, color = 'red') {
+		const id = uuid();
+		this.$view.append(`<div id="${id}" class="dot"></div>`);
+		$(`.dot#${id}`).css({
+			'position': 'absolute',
+			'left': position.x,
+			'top': position.y,
+			'background': color,
+			'width': '10px',
+			'height': '10px',
+			'z-index': 10
+		});
 	}
 
 	/**
@@ -882,6 +919,15 @@ interface Tutorial {
 	direction: Direction; // Direction relative to target
 	nextEvent?: string;
 	backEvent?: string;
+}
+
+export interface Rect {
+	width: number;
+	height: number;
+	top: number;
+	right: number;
+	bottom: number;
+	left: number;
 }
 
 export interface Point {

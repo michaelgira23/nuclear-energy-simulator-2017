@@ -56,16 +56,16 @@ export class Game {
 
 	private _averageFavor = 0;
 	private _totalMwh = 0;
-	private _money: number;
-	private _baseMoneyGained: number;
-	private _time: number;
+	private _money = 0;
+	private _baseMoneyGained = 0;
+	private _time = 0;
 
 	// Average favor of all the cities
 	get averageFavor() {
-		return this._totalMwh;
+		return this._averageFavor;
 	}
 	set averageFavor(value) {
-		this._totalMwh = value;
+		this._averageFavor = value;
 		this.$status.find('.status-favor span').text(round(value));
 	}
 
@@ -108,6 +108,7 @@ export class Game {
 
 	// How much money gained every interval
 	get moneyGained() {
+		console.log('calc money gained', this._baseMoneyGained, this.totalMwh);
 		return this._baseMoneyGained + (this.totalMwh * uranium.nuclearSave);
 	}
 	set baseMoneyGained(value: number) {
@@ -468,6 +469,7 @@ export class Game {
 			this.time++;
 			this.reactors.forEach(reactor => reactor.onTick());
 			if (this.time % this.gameInterval === 0) {
+				console.log('original', this.money, 'gained', this.moneyGained);
 				this.money += this.moneyGained;
 				this.reactors.forEach(reactor => reactor.onInterval());
 			}
@@ -559,6 +561,7 @@ export class Game {
 
 	changeReactorProduction(id: string, mwh: number) {
 		this.reactorsMwhProduction[id] = mwh;
+		console.log('change reactor production', this.reactorsMwhProduction)
 		this.totalMwh = Object.keys(this.reactorsMwhProduction).reduce((acc, val) => {
 			return acc + this.reactorsMwhProduction[val];
 		}, 0);

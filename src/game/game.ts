@@ -1,9 +1,10 @@
 import * as interact from 'interactjs';
 import uuid from 'uuid/v4';
 import { cities, City } from './city';
+import * as easings from './easings';
 import { shuffleFacts } from './fun-facts';
 import { Reactor, ReactorSize, reactorSpecs, uranium } from './reactor';
-import { capitalize, includes, leadingZeros, numberSign, numberWithCommas, round } from './utils';
+import { capitalize, getDistance, includes, leadingZeros, numberSign, numberWithCommas, pointWithinRect, round } from './utils';
 
 declare const $: any;
 declare const Tether: any;
@@ -17,9 +18,13 @@ export class Game {
 
 	funFacts = shuffleFacts();
 	funFactsIndex = 0;
-	// How many seconds before checking if should add new fun fact
-	funFactsTime = 30;
-	funFactsInterval: any;
+	// After this many seconds of no clicking, show a fun fact to keep player engaged
+	funFactsShowAfterNoClick = 5;
+	// Don't bombard players with information. Wait at least this many seconds between facts
+	funFactsMinTime = 30;
+	funFactsTimestampSinceLastFact = 0;
+	funFactsTimeout: any;
+	funFactsProcrastinateTimeout: any;
 
 	$game: any;
 	$buy: any;
@@ -56,16 +61,16 @@ export class Game {
 
 	private _averageFavor = 0;
 	private _totalMwh = 0;
-	private _money: number;
-	private _baseMoneyGained: number;
-	private _time: number;
+	private _money = 0;
+	private _baseMoneyGained = 0;
+	private _time = 0;
 
 	// Average favor of all the cities
 	get averageFavor() {
-		return this._totalMwh;
+		return this._averageFavor;
 	}
 	set averageFavor(value) {
-		this._totalMwh = value;
+		this._averageFavor = value;
 		this.$status.find('.status-favor span').text(round(value));
 	}
 
@@ -171,16 +176,8 @@ export class Game {
 		this.disableReactors();
 
 		// Make reactors in shop draggable
-		this.reactorsInteractable = interact('.buy-reactor:not(.disabled)')
-			.draggable({
-				snap: {
-					targets: [
-						interact.createSnapGrid({ x: 30, y: 30 })
-					],
-					range: Infinity,
-					relativePoints: [{ x: 0, y: 0 }]
-				}
-			})
+		this.reactorsInteractable = interact('.buy-reactor:not(.buy-disabled)')
+			.draggable({})
 			.on('dragstart', event => {
 				event.target.classList.add('dragging');
 				event.target.setAttribute('data-x', 0);
@@ -189,10 +186,9 @@ export class Game {
 				const dimensions = event.target.getBoundingClientRect();
 				event.target.setAttribute('data-mouse-offset-x', dimensions.left - event.clientX);
 				event.target.setAttribute('data-mouse-offset-y', dimensions.top - event.clientY);
-				event.target.setAttribute('data-original-x', dimensions.left);
-				event.target.setAttribute('data-original-y', dimensions.top);
 			})
 			.on('dragmove', event => {
+				const viewDimensions = this.$view.get(0).getBoundingClientRect();
 				let x = parseFloat(event.target.getAttribute('data-x'));
 				let y = parseFloat(event.target.getAttribute('data-y'));
 
@@ -203,37 +199,92 @@ export class Game {
 
 				event.target.setAttribute('data-x', x);
 				event.target.setAttribute('data-y', y);
-			})
-			.on('dragend', event => {
+
 				const reactorDimensions = event.target.getBoundingClientRect();
-				const buyDimensions = this.$buy.get(0).getBoundingClientRect();
 
 				// Get mouse x position
-				const x = event.clientX
+				const dotX = event.clientX
+					// Subtract view x (so now view top left corner is 0, 0)
+					- viewDimensions.left
 					// Add coordinates mouse started dragging relative to reactor position
 					+ Number(event.target.getAttribute('data-mouse-offset-x'))
 					// Make it in the center of the div
-					+ (reactorDimensions.width / 2)
-					// Subtract width of buy div
-					- buyDimensions.width;
+					+ (reactorDimensions.width / 2);
 
 				// Get mouse y position
-				const y = event.clientY
+				const dotY = event.clientY
+					// Subtract view y (so now view top left corner is 0, 0)
+					- viewDimensions.top
 					// Add coordinates mouse started dragging relative to reactor position
 					+ Number(event.target.getAttribute('data-mouse-offset-y'))
 					// Make it in the center of the div
 					+ (reactorDimensions.height / 2);
 
-				// Only add if player has enough money
+				// Only enable dropping if within background image
+				if (pointWithinRect(this.getBackgroundDimensions(), { x: dotX, y: dotY })) {
+					event.target.classList.remove('dragging-disabled');
+				} else {
+					event.target.classList.add('dragging-disabled');
+				}
+
+				// Debug dot
+				// this.dot({ x: dotX, y: dotY });
+			})
+			.on('dragend', event => {
+				const bgDimensions = this.getBackgroundDimensions();
+				const viewDimensions = this.$view.get(0).getBoundingClientRect();
+				const reactorDimensions = event.target.getBoundingClientRect();
+
+				// Get mouse x position
+				const x = event.clientX
+					// Subtract view x (so now view top left corner is 0, 0)
+					- viewDimensions.left
+					// Add coordinates mouse started dragging relative to reactor position
+					+ Number(event.target.getAttribute('data-mouse-offset-x'))
+					// Make it in the center of the div
+					+ (reactorDimensions.width / 2);
+
+				// Get mouse y position
+				const y = event.clientY
+					// Subtract view y (so now view top left corner is 0, 0)
+					- viewDimensions.top
+					// Add coordinates mouse started dragging relative to reactor position
+					+ Number(event.target.getAttribute('data-mouse-offset-y'))
+					// Make it in the center of the div
+					+ (reactorDimensions.height / 2);
+
+				// Get cost of reactor
 				const reactorSize = event.target.getAttribute('data-size');
 				const reactorCost = reactorSpecs[reactorSize].cost;
-				if (this.money >= reactorCost) {
+
+				// Only add if player can afford it and the reactor is within the background dimensions
+				if (this.money >= reactorCost && pointWithinRect(bgDimensions, { x, y })) {
 					this.money -= reactorCost;
 					this.addReactor(reactorSize, { x, y });
 				}
 				event.target.style.transform = 'none';
 				event.target.classList.remove('dragging');
+				event.target.classList.remove('dragging-disabled');
+
+				this.disableReactors();
+
+				// Debug dot
+				// this.dot({ x, y }, 'purple');
 			});
+
+		// Debug border
+		// const bgDimensions = this.getBackgroundDimensions();
+		// this.$view.append(`<div id="background-border"></div>`);
+		// const border = this.$view.find('#background-border')
+		// 	.css({
+		// 		'position': 'absolute',
+		// 		'left': bgDimensions.left,
+		// 		'top': bgDimensions.top,
+		// 		'width': bgDimensions.width,
+		// 		'height': bgDimensions.height,
+		// 		'border': '1px solid red',
+		// 		'pointer-events': 'none'
+		// 	});
 
 		// Dismiss any popovers if player clicks outside them
 		// this.$view.click(event => {
@@ -427,9 +478,42 @@ export class Game {
 			}
 		}, this.gameTick);
 
-		this.funFactsInterval = setInterval(() => {
-			this.showFact();
-		}, this.funFactsTime * 1000);
+		const funEventHandler = () => {
+			if (Date.now() - this.funFactsTimestampSinceLastFact < this.funFactsMinTime * 1000) {
+				if (this.funFactsProcrastinateTimeout) {
+					clearTimeout(this.funFactsProcrastinateTimeout);
+				}
+
+				this.funFactsProcrastinateTimeout = setTimeout(() => {
+					funEventHandler();
+				}, this.funFactsMinTime * 1000);
+				return;
+			}
+
+			if (this.funFactsTimeout) {
+				clearTimeout(this.funFactsTimeout);
+			}
+
+			this.funFactsTimestampSinceLastFact = Date.now();
+			this.funFactsTimeout = setTimeout(() => {
+				this.showFact();
+			}, this.funFactsShowAfterNoClick * 1000);
+		};
+
+		funEventHandler();
+		let isDown = false;
+		$(document)
+			.click(() => {
+				funEventHandler();
+			})
+			// Also activate if dragging
+			.mousedown(() => isDown = true)
+			.mouseup(() => isDown = false)
+			.mousemove(() => {
+				if (isDown) {
+					funEventHandler();
+				}
+			});
 	}
 
 	/**
@@ -441,10 +525,12 @@ export class Game {
 			clearInterval(this.gameTickInterval);
 		}
 		this.gameTickInterval = null;
-		if (this.funFactsInterval) {
-			clearInterval(this.funFactsInterval);
+
+		$(document).off('click');
+		if (this.funFactsTimeout) {
+			clearInterval(this.funFactsTimeout);
 		}
-		this.funFactsInterval = null;
+		this.funFactsTimeout = null;
 	}
 
 	/**
@@ -455,25 +541,22 @@ export class Game {
 		const reactor = new Reactor(this, size, position);
 		this.reactors.push(reactor);
 
-		const distancesToCities = [];
-
-		for (const city of this.cities) {
-			distancesToCities.push(city.getDistanceToReactor(reactor.id));
-		}
-
-		const maxDistance = Math.max(...distancesToCities);
+		// Max distance is if city/reactor were farthest away possible (diagonal distance of background)
+		const bgDimensions = this.getBackgroundDimensions();
+		const maxDistance = getDistance({ x: 0, y: 0}, { x: bgDimensions.width, y: bgDimensions.height });
 
 		for (const city of this.cities) {
 			const distance = city.getDistanceToReactor(reactor.id);
 			const distanceRatio = distance / maxDistance;
 
 			const maxPercentageDecrease = {
-				small: 10,
-				medium: 15,
-				large: 20
+				small: 15,
+				medium: 20,
+				large: 25
 			};
 
-			city.favor -= maxPercentageDecrease[size] * (1 - distanceRatio);
+			const decreasePercentage = maxPercentageDecrease[size] * easings.easeInBack(1 - distanceRatio);
+			city.favor -= decreasePercentage;
 		}
 	}
 
@@ -526,9 +609,9 @@ export class Game {
 		this.$game.find('.buy-reactor')
 			.each(function() {
 				if (value >= parseFloat($(this).attr('data-cost'))) {
-					$(this).removeClass('disabled');
+					$(this).removeClass('buy-disabled');
 				} else {
-					$(this).addClass('disabled');
+					$(this).addClass('buy-disabled');
 				}
 			});
 	}
@@ -538,34 +621,37 @@ export class Game {
 	 */
 
 	win() {
-		/** @todo Do some back-end logic to log game */
 
-		this.alreadyWon = true;
+		if (!this.alreadyWon) {
+			this.alreadyWon = true;
+			$.get('/metrics', { outcome: 'win' }, () => {
 
-		// Ask user if they want to have a tutorial
-		this.focus('none');
-		this.$overlayWin.fadeIn();
+				// Ask user if they want to have a tutorial
+				this.focus('none');
+				this.$overlayWin.fadeIn();
 
-		const $keepPlaying = this.$overlayWin.find('.win-keepplaying');
-		const $done = this.$overlayWin.find('.win-done');
+				const $keepPlaying = this.$overlayWin.find('.win-keepplaying');
+				const $done = this.$overlayWin.find('.win-done');
 
-		// If player wants to keep playing, resume game
-		$keepPlaying.click(event => {
-			$keepPlaying.off('click');
-			$done.off('click');
-			this.$overlayWin.fadeOut();
-			this.focus('all');
-			this.start();
-		});
+				// If player wants to keep playing, resume game
+				$keepPlaying.click(event => {
+					$keepPlaying.off('click');
+					$done.off('click');
+					this.$overlayWin.fadeOut();
+					this.focus('all');
+					this.start();
+				});
 
-		// If player wants to stop, redirect to win page
-		$done.click(event => {
-			$keepPlaying.off('click');
-			$done.off('click');
-			this.$overlayWin.fadeOut();
+				// If player wants to stop, redirect to win page
+				$done.click(event => {
+					$keepPlaying.off('click');
+					$done.off('click');
+					this.$overlayWin.fadeOut();
 
-			window.location.href = '/win';
-		});
+					window.location.href = '/win';
+				});
+			});
+		}
 	}
 
 	/**
@@ -573,8 +659,9 @@ export class Game {
 	 */
 
 	lose(reason: Reason) {
-		/** @todo Do some back-end logic to log game */
-		window.location.href = `/lose?reason=${reason}`;
+		$.get('/metrics', { outcome: reason }, () => {
+			window.location.href = `/lose?reason=${reason}`;
+		});
 	}
 
 	/**
@@ -603,7 +690,7 @@ export class Game {
 		}
 
 		this.$view.find('.fun-facts').append(`
-			<div class="alert alert-info alert-dismissible fade show" role="alert">
+			<div class="fact alert alert-info alert-dismissible fade" role="alert">
 				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -612,6 +699,10 @@ export class Game {
 				<p>Sources: ${sourceButtons.join(', ')}</p>
 			</div>
 		`);
+
+		setTimeout(() => {
+			this.$view.find('.fact').addClass('show');
+		}, 150);
 
 		this.funFactsIndex++;
 	}
@@ -770,7 +861,7 @@ export class Game {
 	 * Gets the coordinates of where the map image should be
 	 */
 
-	getBackgroundDimensions() {
+	getBackgroundDimensions(relativeToView = true) {
 		// Width / height
 		const imageRatio = 4 / 3;
 
@@ -808,9 +899,45 @@ export class Game {
 			targetAttachment: 'center center'
 		});
 
-		const dimensions = $border.get(0).getBoundingClientRect();
+		const rect = $border.get(0).getBoundingClientRect();
 		$border.remove();
+
+		const dimensions: Rect = {
+			width: rect.width,
+			height: rect.height,
+			top: rect.top,
+			right: rect.right,
+			bottom: rect.bottom,
+			left: rect.left
+		};
+
+		if (relativeToView) {
+			const viewDimensions = this.$view.get(0).getBoundingClientRect();
+			dimensions.left -= viewDimensions.left;
+			dimensions.right -= viewDimensions.left;
+			dimensions.top -= viewDimensions.top;
+			dimensions.bottom -= viewDimensions.top;
+		}
+
 		return dimensions;
+	}
+
+	/**
+	 * Puts a red dot on the game view (for debugging only!)
+	 */
+
+	dot(position: Point, color = 'red') {
+		const id = uuid();
+		this.$view.append(`<div id="${id}" class="dot"></div>`);
+		$(`.dot#${id}`).css({
+			'position': 'absolute',
+			'left': position.x,
+			'top': position.y,
+			'background': color,
+			'width': '10px',
+			'height': '10px',
+			'z-index': 10
+		});
 	}
 
 	/**
@@ -837,6 +964,15 @@ interface Tutorial {
 	direction: Direction; // Direction relative to target
 	nextEvent?: string;
 	backEvent?: string;
+}
+
+export interface Rect {
+	width: number;
+	height: number;
+	top: number;
+	right: number;
+	bottom: number;
+	left: number;
 }
 
 export interface Point {

@@ -1,6 +1,20 @@
+import { Point, Rect } from './game';
+
 // Opposite of communismize
 export function capitalize(str: string) {
 	return str[0].toUpperCase() + str.substr(1);
+}
+
+// Use Pythagorean Theorem
+export function getDistance(a: Point, b: Point) {
+	return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+}
+
+// Get random integer between min and max (inclusive)
+export function getRandomIntInclusive(min: number, max: number) {
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 // Check if element within array
@@ -34,6 +48,14 @@ export function numberSign(num: number) {
 		default:
 			return '';
 	}
+}
+
+// Accepts a rectangle like one from getBoundingClientRect (with `left`, `top`, `width`, and `height`) and determines if point is within it
+export function pointWithinRect(rect: Rect, point: Point) {
+	// Check within X
+	return (rect.left <= point.x && point.x <= (rect.left + rect.width))
+		// Check within Y
+		&& (rect.top <= point.y && point.y <= (rect.top + rect.height));
 }
 
 // Round a number to a certain amount of decimal pounts

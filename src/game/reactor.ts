@@ -1,4 +1,5 @@
 import uuid from 'uuid/v4';
+import * as easings from './easings';
 import { Point } from './game';
 import { ReactorDetails } from './reactor-details';
 import { capitalize, round } from './utils';
@@ -8,7 +9,7 @@ declare const $: any;
 export class Reactor {
 
 	id: string = uuid();
-	position: Point; // X and Y of reactor (in percentages)
+	// position: Point; // X and Y of reactor (in percentages)
 	$elem: any;
 	specs: ReactorSpec;
 	detailsPopup: ReactorDetails;
@@ -85,10 +86,6 @@ export class Reactor {
 			this.specs = reactorSpecs.small;
 		}
 
-		// Add arbitrary offset I found to get the images closely aligned to where they were dropped
-		point.x -= 65;
-		point.y -= 73;
-
 		// Convert point to percentages
 		// this.position = this.game.pixelsToPercent(point);
 
@@ -101,10 +98,10 @@ export class Reactor {
 		this.$elem = $(`.reactor#${this.id}`);
 
 		this.$elem.css({
-			// left: `calc(${this.position.x}% - 4rem)`,
-			// top: `calc(${this.position.x}% - 4rem)`
-			left: point.x,
-			top: point.y
+			left: `calc(${point.x}px - 4rem)`,
+			top: `calc(${point.y}px - 4rem)`
+			// left: point.x,
+			// top: point.y
 		});
 
 		this.detailsPopup = new ReactorDetails(this);
@@ -200,7 +197,8 @@ export class Reactor {
 		}
 
 		// How many megawatts-hours reactor should be producing this tick
-		let produceMwh = (reactorPowerEasing(startupEasingPercentage) * (targetUsage - this.mwSinceStateChange)) + this.mwSinceStateChange;
+		// When reactor is turned on, don't immediately produce full power
+		let produceMwh = (easings.easeInOutQuart(startupEasingPercentage) * (targetUsage - this.mwSinceStateChange)) + this.mwSinceStateChange;
 		// How many pounds of uranium needed to produce target mw at this current moment in the easing
 		let useUranium = (produceMwh / uranium.mwPerPound) / 60;
 
@@ -285,15 +283,6 @@ export const reactorSpecs: { [key: string]: ReactorSpec } = {
 		uraniumCapacity: round(0.1 * 2 * 3)
 	}
 };
-
-// When reactor is turned on, don't immediately produce full power.
-// x is the fraction of the animation progress, in the range 0..1
-function reactorPowerEasing(x: number) {
-	return x < 0.5 ?
-		8 * x * x * x * x :
-		1 - Math.pow(-2 * x + 2, 4) / 2;
-}
-
 export interface ReactorSpec {
 	cost: number;
 	mwCapacity: number; // Thge maximum megawatts the reactor can produce

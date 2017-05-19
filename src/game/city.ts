@@ -1,6 +1,6 @@
 import uuid from 'uuid/v4';
 import { Point } from './game';
-import { capitalize, round } from './utils';
+import { capitalize, getRandomIntInclusive, round } from './utils';
 
 declare const $: any;
 
@@ -86,17 +86,15 @@ export class City {
 
 		this.$elem = this.game.$view.find(`.city#${this.id}`);
 
-		this.favor = round((Math.random() * 10) + 10, 0);
-		console.log(this.favor);
-		this.favor = 20;
-		this.game.changeCityFavor(this.id, this.favor);
+		// Pick a random precent between 15% and 20%
+		this.favor = getRandomIntInclusive(20 - 5, 20 + 5);
+		// this.favor = 20;
 
 		const bgDimensions = game.getBackgroundDimensions();
-		const viewDimensions = game.$view.get(0).getBoundingClientRect();
 
 		this.$elem.css({
-			left: (bgDimensions.left - viewDimensions.left) + (bgDimensions.width * (topLeft.x / 100)),
-			top: (bgDimensions.top - viewDimensions.top) + (bgDimensions.height * (topLeft.y / 100)),
+			left: bgDimensions.left + (bgDimensions.width * (topLeft.x / 100)),
+			top: bgDimensions.top + (bgDimensions.height * (topLeft.y / 100)),
 			width: bgDimensions.width * (dimensions.x / 100),
 			height: bgDimensions.height * (dimensions.y / 100)
 		});

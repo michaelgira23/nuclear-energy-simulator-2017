@@ -86,8 +86,9 @@ export class City {
 
 		this.$elem = this.game.$view.find(`.city#${this.id}`);
 
-		// Pick a random precent between 15% (inclusive) and 25% (exclusive)
+		// Pick a random precent between 15% and 20%
 		this.favor = getRandomIntInclusive(20 - 5, 20 + 5);
+		// this.favor = 20;
 
 		const bgDimensions = game.getBackgroundDimensions();
 

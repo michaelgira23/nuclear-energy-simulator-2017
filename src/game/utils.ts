@@ -5,6 +5,11 @@ export function capitalize(str: string) {
 	return str[0].toUpperCase() + str.substr(1);
 }
 
+// Use Pythagorean Theorem
+export function getDistance(a: Point, b: Point) {
+	return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+}
+
 // Get random integer between min and max (inclusive)
 export function getRandomIntInclusive(min: number, max: number) {
 	min = Math.ceil(min);

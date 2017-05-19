@@ -1,9 +1,10 @@
 import * as interact from 'interactjs';
 import uuid from 'uuid/v4';
 import { cities, City } from './city';
+import * as easings from './easings';
 import { shuffleFacts } from './fun-facts';
 import { Reactor, ReactorSize, reactorSpecs, uranium } from './reactor';
-import { capitalize, includes, leadingZeros, numberSign, numberWithCommas, pointWithinRect, round } from './utils';
+import { capitalize, getDistance, includes, leadingZeros, numberSign, numberWithCommas, pointWithinRect, round } from './utils';
 
 declare const $: any;
 declare const Tether: any;
@@ -99,7 +100,7 @@ export class Game {
 	set money(value: number) {
 		this._money = value;
 		this.$status.find('.status-money span').text(numberWithCommas(round(value)));
-		// this.disableReactors();
+		this.disableReactors();
 
 		if (this.money <= 0) {
 			this.lose('economic');
@@ -108,7 +109,6 @@ export class Game {
 
 	// How much money gained every interval
 	get moneyGained() {
-		console.log('calc money gained', this._baseMoneyGained, this.totalMwh);
 		return this._baseMoneyGained + (this.totalMwh * uranium.nuclearSave);
 	}
 	set baseMoneyGained(value: number) {
@@ -469,7 +469,6 @@ export class Game {
 			this.time++;
 			this.reactors.forEach(reactor => reactor.onTick());
 			if (this.time % this.gameInterval === 0) {
-				console.log('original', this.money, 'gained', this.moneyGained);
 				this.money += this.moneyGained;
 				this.reactors.forEach(reactor => reactor.onInterval());
 			}
@@ -503,25 +502,23 @@ export class Game {
 		const reactor = new Reactor(this, size, position);
 		this.reactors.push(reactor);
 
-		const distancesToCities = [];
-
-		for (const city of this.cities) {
-			distancesToCities.push(city.getDistanceToReactor(reactor.id));
-		}
-
-		const maxDistance = Math.max(...distancesToCities);
+		// Max distance is if city/reactor were farthest away possible (diagonal distance of background)
+		const bgDimensions = this.getBackgroundDimensions();
+		const maxDistance = getDistance({ x: 0, y: 0}, { x: bgDimensions.width, y: bgDimensions.height });
 
 		for (const city of this.cities) {
 			const distance = city.getDistanceToReactor(reactor.id);
 			const distanceRatio = distance / maxDistance;
 
 			const maxPercentageDecrease = {
-				small: 10,
-				medium: 15,
-				large: 20
+				small: 15,
+				medium: 20,
+				large: 25
 			};
 
-			city.favor -= maxPercentageDecrease[size] * (1 - distanceRatio);
+			const decreasePercentage = maxPercentageDecrease[size] * easings.easeInBack(1 - distanceRatio);
+			console.log('decirease city', decreasePercentage, 'distance', distance);
+			city.favor -= decreasePercentage;
 		}
 	}
 
@@ -561,7 +558,6 @@ export class Game {
 
 	changeReactorProduction(id: string, mwh: number) {
 		this.reactorsMwhProduction[id] = mwh;
-		console.log('change reactor production', this.reactorsMwhProduction)
 		this.totalMwh = Object.keys(this.reactorsMwhProduction).reduce((acc, val) => {
 			return acc + this.reactorsMwhProduction[val];
 		}, 0);

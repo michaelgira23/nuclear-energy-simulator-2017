@@ -1,3 +1,5 @@
+import { Point } from './game';
+
 // Opposite of communismize
 export function capitalize(str: string) {
 	return str[0].toUpperCase() + str.substr(1);
@@ -34,6 +36,14 @@ export function numberSign(num: number) {
 		default:
 			return '';
 	}
+}
+
+// Accepts a rectangle like one from getBoundingClientRect (with `left`, `top`, `width`, and `height`) and determines if point is within it
+export function pointWithinRect(rect, point: Point) {
+	// Check within X
+	return (rect.left <= point.x && point.x <= (rect.left + rect.width))
+		// Check within Y
+		&& (rect.top <= point.y && point.y <= (rect.top + rect.height));
 }
 
 // Round a number to a certain amount of decimal pounts

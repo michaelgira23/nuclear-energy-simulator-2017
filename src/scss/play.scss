@@ -107,11 +107,13 @@ button {
 			}
 
 			.buy-reactors {
+				width: (12rem * 2) + 0.5rem;
+
 				display: flex;
 				justify-content: space-between;
 				flex-wrap: wrap;
 
-				width: (12rem * 2) + 0.5rem;
+				transition-duration: opacity $transition-duration $transition-easing;
 
 				.buy-reactor {
 					width: 12rem;
@@ -137,7 +139,7 @@ button {
 						}
 					}
 
-					&.disabled {
+					&.buy-disabled {
 						cursor: not-allowed;
 						color: mix(#292b2c, rgba(#292b2c, 0.5));
 
@@ -150,6 +152,10 @@ button {
 							left: 0;
 							background: rgba(#292b2c, 0.5);
 						}
+					}
+
+					&.dragging-disabled .reactor-image {
+						opacity: 0.5;
 					}
 
 					* {

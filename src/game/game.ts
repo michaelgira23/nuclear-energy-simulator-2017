@@ -3,7 +3,7 @@ import uuid from 'uuid/v4';
 import { cities, City } from './city';
 import { shuffleFacts } from './fun-facts';
 import { Reactor, ReactorSize, reactorSpecs, uranium } from './reactor';
-import { capitalize, includes, leadingZeros, numberSign, numberWithCommas, round } from './utils';
+import { capitalize, includes, leadingZeros, numberSign, numberWithCommas, pointWithinRect, round } from './utils';
 
 declare const $: any;
 declare const Tether: any;
@@ -18,7 +18,7 @@ export class Game {
 	funFacts = shuffleFacts();
 	funFactsIndex = 0;
 	// How many seconds before checking if should add new fun fact
-	funFactsTime = 30;
+	funFactsTime = 60;
 	funFactsInterval: any;
 
 	$game: any;
@@ -99,7 +99,7 @@ export class Game {
 	set money(value: number) {
 		this._money = value;
 		this.$status.find('.status-money span').text(numberWithCommas(round(value)));
-		this.disableReactors();
+		// this.disableReactors();
 
 		if (this.money <= 0) {
 			this.lose('economic');
@@ -171,15 +171,15 @@ export class Game {
 		this.disableReactors();
 
 		// Make reactors in shop draggable
-		this.reactorsInteractable = interact('.buy-reactor:not(.disabled)')
+		this.reactorsInteractable = interact('.buy-reactor:not(.buy-disabled)')
 			.draggable({
-				snap: {
-					targets: [
-						interact.createSnapGrid({ x: 30, y: 30 })
-					],
-					range: Infinity,
-					relativePoints: [{ x: 0, y: 0 }]
-				}
+				// snap: {
+				// 	targets: [
+				// 		interact.createSnapGrid({ x: 30, y: 30 })
+				// 	],
+				// 	range: Infinity,
+				// 	relativePoints: [{ x: 0, y: 0 }]
+				// }
 			})
 			.on('dragstart', event => {
 				event.target.classList.add('dragging');
@@ -203,6 +203,14 @@ export class Game {
 
 				event.target.setAttribute('data-x', x);
 				event.target.setAttribute('data-y', y);
+
+				// Only enable dropping if within background image
+				const backgroundDimensions = this.getBackgroundDimensions();
+				if (pointWithinRect(backgroundDimensions, { x, y })) {
+					event.target.classList.remove('dragging-disabled');
+				} else {
+					event.target.classList.add('dragging-disabled');
+				}
 			})
 			.on('dragend', event => {
 				const reactorDimensions = event.target.getBoundingClientRect();
@@ -213,7 +221,7 @@ export class Game {
 					// Add coordinates mouse started dragging relative to reactor position
 					+ Number(event.target.getAttribute('data-mouse-offset-x'))
 					// Make it in the center of the div
-					+ (reactorDimensions.width / 2)
+					// + (reactorDimensions.width / 2)
 					// Subtract width of buy div
 					- buyDimensions.width;
 
@@ -222,17 +230,34 @@ export class Game {
 					// Add coordinates mouse started dragging relative to reactor position
 					+ Number(event.target.getAttribute('data-mouse-offset-y'))
 					// Make it in the center of the div
-					+ (reactorDimensions.height / 2);
+					// + (reactorDimensions.height / 2);
 
-				// Only add if player has enough money
+				// Get cost of reactor
 				const reactorSize = event.target.getAttribute('data-size');
 				const reactorCost = reactorSpecs[reactorSize].cost;
-				if (this.money >= reactorCost) {
+
+				// Get dimensions of background
+				const backgroundDimensions = this.getBackgroundDimensions();
+
+				// Only add if player can afford it and the reactor is within the background dimensions
+				if (this.money >= reactorCost && pointWithinRect(backgroundDimensions, { x: event.clientX, y: event.clientY })) {
 					this.money -= reactorCost;
 					this.addReactor(reactorSize, { x, y });
 				}
 				event.target.style.transform = 'none';
 				event.target.classList.remove('dragging');
+				event.target.classList.remove('dragging-disabled');
+
+				this.$view.append('<div class="dot"></div>');
+				$('.dot').css({
+					'position': 'absolute',
+					'top': y,
+					'left': x,
+					'background': 'red',
+					'width': '10px',
+					'height': '10px',
+					'z-index': 10
+				});
 			});
 
 		// Dismiss any popovers if player clicks outside them
@@ -407,6 +432,26 @@ export class Game {
 			});
 		});
 
+		// Add debug border
+		const bgDimensions = this.getBackgroundDimensions();
+		this.$view.append(`<div id="background-border"></div>`);
+		// const border = this.$view.find('#background-border')
+		// 	.css({
+		// 		// 'left': bgDimensions.left,
+		// 		// 'top': bgDimensions.top,
+		// 		'width': bgDimensions.width,
+		// 		'height': bgDimensions.height,
+		// 		'border': '1px solid red',
+		// 		'pointer-events': 'none'
+		// 	});
+
+		// const tether = new Tether({
+		// 	element: border,
+		// 	target: this.$view,
+		// 	attachment: 'center center',
+		// 	targetAttachment: 'center center'
+		// });
+
 	}
 
 	/**
@@ -526,9 +571,9 @@ export class Game {
 		this.$game.find('.buy-reactor')
 			.each(function() {
 				if (value >= parseFloat($(this).attr('data-cost'))) {
-					$(this).removeClass('disabled');
+					$(this).removeClass('buy-disabled');
 				} else {
-					$(this).addClass('disabled');
+					$(this).addClass('buy-disabled');
 				}
 			});
 	}

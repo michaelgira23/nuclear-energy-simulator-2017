@@ -556,7 +556,6 @@ export class Game {
 			};
 
 			const decreasePercentage = maxPercentageDecrease[size] * easings.easeInBack(1 - distanceRatio);
-			console.log('decirease city', decreasePercentage, 'distance', distance);
 			city.favor -= decreasePercentage;
 		}
 	}
@@ -622,34 +621,37 @@ export class Game {
 	 */
 
 	win() {
-		/** @todo Do some back-end logic to log game */
 
-		this.alreadyWon = true;
+		if (!this.alreadyWon) {
+			this.alreadyWon = true;
+			$.get('/metrics', { outcome: 'win' }, () => {
 
-		// Ask user if they want to have a tutorial
-		this.focus('none');
-		this.$overlayWin.fadeIn();
+				// Ask user if they want to have a tutorial
+				this.focus('none');
+				this.$overlayWin.fadeIn();
 
-		const $keepPlaying = this.$overlayWin.find('.win-keepplaying');
-		const $done = this.$overlayWin.find('.win-done');
+				const $keepPlaying = this.$overlayWin.find('.win-keepplaying');
+				const $done = this.$overlayWin.find('.win-done');
 
-		// If player wants to keep playing, resume game
-		$keepPlaying.click(event => {
-			$keepPlaying.off('click');
-			$done.off('click');
-			this.$overlayWin.fadeOut();
-			this.focus('all');
-			this.start();
-		});
+				// If player wants to keep playing, resume game
+				$keepPlaying.click(event => {
+					$keepPlaying.off('click');
+					$done.off('click');
+					this.$overlayWin.fadeOut();
+					this.focus('all');
+					this.start();
+				});
 
-		// If player wants to stop, redirect to win page
-		$done.click(event => {
-			$keepPlaying.off('click');
-			$done.off('click');
-			this.$overlayWin.fadeOut();
+				// If player wants to stop, redirect to win page
+				$done.click(event => {
+					$keepPlaying.off('click');
+					$done.off('click');
+					this.$overlayWin.fadeOut();
 
-			window.location.href = '/win';
-		});
+					window.location.href = '/win';
+				});
+			});
+		}
 	}
 
 	/**
@@ -657,8 +659,9 @@ export class Game {
 	 */
 
 	lose(reason: Reason) {
-		/** @todo Do some back-end logic to log game */
-		window.location.href = `/lose?reason=${reason}`;
+		$.get('/metrics', { outcome: reason }, () => {
+			window.location.href = `/lose?reason=${reason}`;
+		});
 	}
 
 	/**

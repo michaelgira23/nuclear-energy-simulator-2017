@@ -1,9 +1,20 @@
-const port = 2100;
+/**
+ * Main File
+ */
+
+const path = require('path');
+
+let config;
+try {
+	config = require(path.join(__dirname, 'config.js'));
+} catch(e) {
+	throw new Error('***PLEASE CREATE A CONFIG.JS ON YOUR LOCAL SYSTEM. REFER TO CONFIG.EXAMPLE.JS***');
+}
 
 const express = require('express');
 const app = express();
 
-const path = require('path');
+const MongoClient = require('mongodb').MongoClient;
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -72,6 +83,39 @@ app.get('/bibliography', (req, res) => {
 
 app.get('/layout', (req, res) => {
 	res.render('pages/layout');
-})
+});
 
-app.listen(port, () => console.log(`Server listening on *:${port}`));
+MongoClient.connect(config.mongoURI, (err, db) => {
+	if (err) {
+		throw err;
+	}
+
+	const outcomesData = db.collection('outcomes');
+	const possibleOutcomes = [
+		'win',
+		'political',
+		'social',
+		'economic'
+	];
+
+	app.get('/metrics', (req, res) => {
+
+		if (!possibleOutcomes.includes(req.query.outcome)) {
+			res.json({ error: 'dude what kind of outcome is that' });
+			return;
+		}
+
+		outcomesData.insertOne({
+			outcome: req.query.outcome,
+			timestamp: Date.now()
+		}, err => {
+			if(err) {
+				res.json({ error: 'There was a problem inserting data into the database!' });
+			}
+			res.json({ error: null });
+		});
+	});
+
+});
+
+app.listen(config.port, () => console.log(`Server listening on *:${config.port}`));
